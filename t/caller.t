@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: caller.t,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: caller.t,v 0.2.1.1 2001/03/13 18:45:44 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: caller.t,v $
+# Revision 0.2.1.1  2001/03/13 18:45:44  ram
+# patch2: test the ${line} variable substitution
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -111,7 +114,7 @@ $driver = Log::Agent::Driver::File->make(
 );
 logconfig(
 	-driver => $driver,
-	-caller => [ -display => '<$sub/$line>' ],
+	-caller => [ -display => '<$sub/${line}>' ],
 );
 
 show_error;

@@ -1,5 +1,5 @@
 #
-# $Id: Formatting.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Formatting.pm,v 0.2.1.1 2001/03/13 18:45:06 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Formatting.pm,v $
+# Revision 0.2.1.1  2001/03/13 18:45:06  ram
+# patch2: renamed caller_format_args() as tag_format_args()
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -23,7 +26,7 @@ package Log::Agent::Formatting;
 use vars qw(@ISA @EXPORT_OK);
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(format_args caller_format_args);
+@EXPORT_OK = qw(format_args tag_format_args);
 
 require Log::Agent::Message;
 
@@ -68,15 +71,25 @@ sub format_args {
 }}										# endif /* VERSION >= 5.005 */
 
 #
-# caller_format_args
+# tag_format_args
 #
-# Same as format_args, but first argument yields a caller object.
-# If defined, tell it to insert its information within the formatted message.
+# Same as format_args, but with extra arguments, giving a list of tags
+# to be inserted within the formatted message.
 #
-sub caller_format_args {
-	my $caller = shift;
+#   $caller			caller information, done firstly
+#   $priority		priority information, done secondly
+#   $tags			list of user-defined tags, done lastly
+#
+sub tag_format_args {
+	my ($caller, $priority, $tags) = splice(@_, 0, 3);
 	my $str = &format_args;
-	$caller->insert($str) if $caller;
+	$caller->insert($str) if defined $caller;
+	$priority->insert($str) if defined $priority;
+	if (defined $tags) {
+		foreach my $tag (@$tags) {
+			$tag->insert($str);
+		}
+	}
 	return $str;
 }
 

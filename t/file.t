@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: file.t,v 0.2 2000/11/06 19:30:34 ram Exp $
+# $Id: file.t,v 0.2.1.1 2001/03/13 18:46:06 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: file.t,v $
+# Revision 0.2.1.1  2001/03/13 18:46:06  ram
+# patch2: fixed bug for *BSD systems
+#
 # Revision 0.2  2000/11/06 19:30:34  ram
 # Baseline for second Alpha release.
 #
@@ -107,7 +110,7 @@ ok 22, !contains("t/file.out", 'die');
 unlink 't/file.out', 't/file.err';
 
 undef $Log::Agent::Driver;		# Cheat
-open(FILE, '>t/file.err');
+open(FILE, '>>t/file.err');		# Needs appending, for OpenBSD
 
 $driver = Log::Agent::Driver::File->make(
 	-prefix => 'me',

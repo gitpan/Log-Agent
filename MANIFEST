@@ -3,7 +3,6 @@ MANIFEST                         This list
 ChangeLog                        List of changes
 Makefile.PL                      Generic Makefile template
 Agent.pm                         Main agent, default interface
-Agent/Caller.pm                  Computes and formats caller information
 Agent/Channel.pm                 Ancestor for all channels
 Agent/Channel/File.pm            File logging channel
 Agent/Channel/Handle.pm          I/O handle logging channel
@@ -21,6 +20,12 @@ Agent/Message.pm                 A log message
 Agent/Prefixer.pm                Log prefixer (name, pid)
 Agent/Priorities.pm              Priority manipulation routines
 Agent/Stamping.pm                Log timestamping routines
+Agent/Tag.pm                     Ancestor for message tags
+Agent/Tag/Callback.pm            Add dynamically computed tags to messages
+Agent/Tag/Caller.pm              Computes and formats caller information
+Agent/Tag/Priority.pm            Add priority/level information to messages
+Agent/Tag/String.pm              Add constant string to messages
+Agent/Tag_List.pm                Holds list of user-defined tags
 patchlevel.h                     Records the current patchlevel
 t/caller.t                       Test caller information
 t/carp.pl                        Library for tests
@@ -31,3 +36,6 @@ t/code.pl                        Library for tests
 t/default.t                      Test default settings and driver
 t/default_exp.t                  Test default settings, explicit logconfig()
 t/file.t                         Test file driver
+t/priority.t                     Test -priority setting in logconfig()
+t/tag_callback.t                 Test log message tag via callback
+t/tag_string.t                   Test log message tag via string

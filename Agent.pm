@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.2.1.1 2000/11/12 14:44:43 ram Exp $
+# $Id: Agent.pm,v 0.2.1.2 2001/03/13 18:44:35 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.2.1.2  2001/03/13 18:44:35  ram
+# patch2: added the -priority and -tags options to logconfig()
+#
 # Revision 0.2.1.1  2000/11/12 14:44:43  ram
 # patch1: forgot to take ref on @_ in bug()
 #
@@ -23,7 +26,9 @@ require Exporter;
 ########################################################################
 package Log::Agent;
 
-use vars qw($VERSION $Driver $Prefix $Trace $Debug $Confess $Caller $DATUM);
+use vars qw($VERSION $Driver $Prefix $Trace $Debug $Confess
+	$Caller $Priorities $Tags $DATUM %prio_cache);
+
 use AutoLoader 'AUTOLOAD';
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 
@@ -34,13 +39,13 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 	logsay logerr logwarn logdie logtrc logdbg
 );
 @EXPORT_OK = qw(
-	logwrite
+	logwrite logtags
 );
 
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
-use Log::Agent::Formatting qw(caller_format_args);
+use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.201';
+$VERSION = '0.203';
 
 $Trace = NOTICE;	# Default tracing
 
@@ -55,19 +60,24 @@ __END__
 #
 # Available options (case insensitive):
 #
-#   -PREFIX => string             logging prefix/tag to use, for Default agent
-#   -DRIVER => object             object heir of Log::Agent::Driver
-#   -TRACE => level               trace level
-#   -DEBUG => level               debug level
-#   -LEVEL => level               specifies common trace/debug level
-#	-CONFESS => flag              whether to automatically confess on logdie
-#	-CALLER => listref            info from caller to add and where
+#   -PREFIX   => string           logging prefix/tag to use, for Default agent
+#   -DRIVER   => object           object heir of Log::Agent::Driver
+#   -TRACE    => level            trace level
+#   -DEBUG    => level            debug level
+#   -LEVEL    => level            specifies common trace/debug level
+#   -CONFESS  => flag             whether to automatically confess on logdie
+#   -CALLER   => listref          info from caller to add and where
+#   -PRIORITY => listref          message priority information to add
+#   -TAGS     => listref          list of user-defined tags to add
 #
-# For -CALLER, allowed keys are documented in the Log::Agent::Caller's make().
+# Notes:
+#   -CALLER   allowed keys documented in Log::Agent::Tag::Caller's make()
+#   -PRIORITY allowed keys documented in Log::Agent::Tag::Priority's make()
+#   -TAGS     supplies list of Log::Agent::Tag objects
 #
 sub logconfig {
 	my (%args) = @_;
-	my $calldef;
+	my ($calldef, $priodef, $tags);
 
 	my %set = (
 		-prefix			=> \$Prefix,		# Only for Default init
@@ -77,6 +87,8 @@ sub logconfig {
 		-level			=> [\$Trace, \$Debug],
 		-confess		=> \$Confess,
 		-caller			=> \$calldef,
+		-priority		=> \$priodef,
+		-tags			=> \$tags,
 	);
 
 	while (my ($arg, $val) = each %args) {
@@ -102,10 +114,52 @@ sub logconfig {
 	$Trace = level_from_prio($Trace) if defined $Trace && $Trace =~ /^\D+/;
 	$Debug = level_from_prio($Debug) if defined $Debug && $Debug =~ /^\D+/;
 
+	#
+	# Handle -caller => [ <options for Log::Agent::Tag::Caller's make> ]
+	#
+
 	if (defined $calldef) {
-		require Log::Agent::Caller;
-		$Caller = Log::Agent::Caller->make(-offset => 2, @{$calldef});
+		unless (ref $calldef eq 'ARRAY') {
+			require Carp;
+			Carp::croak("Argument -caller must supply an array ref");
+		}
+		require Log::Agent::Tag::Caller;
+		$Caller = Log::Agent::Tag::Caller->make(-offset => 3, @{$calldef});
 	};
+
+	#
+	# Handle -priority => [ <options for Log::Agent::Tag::Priority's make> ]
+	#
+
+	if (defined $priodef) {
+		unless (ref $priodef eq 'ARRAY') {
+			require Carp;
+			Carp::croak("Argument -priority must supply an array ref");
+		}
+		$Priorities = $priodef;		# Objects created via prio_tag()
+	};
+
+	#
+	# Handle -tags => [ <list of Log::Agent::Tag objects> ]
+	#
+
+	if (defined $tags) {
+		unless (ref $tags eq 'ARRAY') {
+			require Carp;
+			Carp::croak("Argument -tags must supply an array ref");
+		}
+		my $type = "Log::Agent::Tag";
+		if (grep { !ref $_ || !$_->isa($type) } @$tags) {
+			require Carp;
+			Carp::croak("Argument -tags must supply list of $type objects");
+		}
+		if (@$tags) {
+			require Log::Agent::Tag_List;
+			$Tags = Log::Agent::Tag_List->make(@$tags);
+		} else {
+			undef $Tags;
+		}
+	}
 
 	# Install interceptor if needed
 	DATUM_is_here() if defined $DATUM && $DATUM;
@@ -163,7 +217,8 @@ sub log_default {
 # Die with a full stack trace
 #
 sub logconfess {
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(CRIT)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logconfess($str);
 	bug("back from logconfess in driver $Driver\n");
@@ -177,7 +232,8 @@ sub logconfess {
 #
 sub logcroak {
 	goto &logconfess if $Confess;		# Redirected when -confess
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(CRIT)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logxcroak(0, $str);
 	bug("back from logxcroak in driver $Driver\n");
@@ -191,7 +247,8 @@ sub logcroak {
 sub logxcroak {
 	my $offset = shift;
 	goto &logconfess if $Confess;		# Redirected when -confess
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(CRIT)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logxcroak($offset, $str);
 	bug("back from logxcroak in driver $Driver\n");
@@ -205,7 +262,8 @@ sub logxcroak {
 #
 sub logdie {
 	goto &logconfess if $Confess;		# Redirected when -confess
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(CRIT)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logdie($str);
 	bug("back from logdie in driver $Driver\n");
@@ -218,7 +276,8 @@ sub logdie {
 #
 sub logerr {
 	return if $Trace < ERROR;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(ERROR)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logerr($str);
 }
@@ -230,7 +289,8 @@ sub logerr {
 #
 sub logcarp {
 	return if $Trace < WARN;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(WARN)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logxcarp(0, $str);
 }
@@ -243,7 +303,8 @@ sub logcarp {
 sub logxcarp {
 	return if $Trace < WARN;
 	my $offset = shift;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(WARN)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logxcarp($offset, $str);
 }
@@ -255,7 +316,8 @@ sub logxcarp {
 #
 sub logwarn {
 	return if $Trace < WARN;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(WARN)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logwarn($str);
 }
@@ -267,7 +329,8 @@ sub logwarn {
 #
 sub logsay {
 	return if $Trace < NOTICE;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(NOTICE)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logsay($str);
 }
@@ -282,7 +345,8 @@ sub logtrc {
 	my $id = shift;
 	my ($prio, $level) = priority_level($id);
 	return if $level > $Trace;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag($prio, $level) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logwrite('output', $prio, $level, $str);
 }
@@ -297,9 +361,22 @@ sub logdbg {
 	my $id = shift;
 	my ($prio, $level) = priority_level($id);
 	return if !defined($Debug) || $level > $Debug;
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag($prio, $level) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logwrite('debug', $prio, $level, $str);
+}
+
+#
+# logtags
+#
+# Returns info on user-defined logging tags.
+# Asking for this creates the underlying taglist object if not already present.
+#
+sub logtags {
+	return $Tags if defined $Tags;
+	require Log::Agent::Tag_List;
+	return $Tags = Log::Agent::Tag_List->make();
 }
 
 ###
@@ -314,7 +391,8 @@ sub logdbg {
 sub logwrite {
 	my ($channel, $id) = splice(@_, 0, 2);
 	my ($prio, $level) = priority_level($id);
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag($prio, $level) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	&log_default unless defined $Driver;
 	$Driver->logwrite($channel, $prio, $level, $str);
 }
@@ -325,10 +403,41 @@ sub logwrite {
 # Log bug, and die.
 #
 sub bug {
-	my $str = caller_format_args($Caller, \@_);
+	my $ptag = prio_tag(priority_level(EMERG)) if defined $Priorities;
+	my $str = tag_format_args($Caller, $ptag, $Tags, \@_);
 	logerr("BUG: $str");
 	die "${Prefix}: $str\n";
 }
+
+#
+# prio_tag
+#
+# Returns Log::Agent::Tag::Priority message that is suitable for tagging
+# at this priority/level, if configured to log priorities.
+#
+# Objects are cached into %prio_cache.
+#
+sub prio_tag {
+	my ($prio, $level) = @_;
+	my $ptag = $prio_cache{$prio, $level};
+	return $ptag if defined $ptag;
+
+	require Log::Agent::Tag::Priority;
+
+	#
+	# Common attributes (formatting, postfixing, etc...) are held in
+	# the $Priorities global variable.  We add the priority/level here.
+	#
+
+	$ptag = Log::Agent::Tag::Priority->make(
+		-priority	=> $prio,
+		-level		=> $level,
+		@$Priorities
+	);
+
+	return $prio_cache{$prio, $level} = $ptag;
+}
+
 
 =head1 NAME
 
@@ -542,11 +651,11 @@ which takes the following switches, in alphabetical order:
 
 Request that caller information (relative to the logxxx() call) be part
 of the log message. The given I<parameters> are handed off to the
-creation routine of Log::Agent::Caller(3) and are documented there.
+creation routine of Log::Agent::Tag::Caller(3) and are documented there.
 
 I usually say something like:
 
-	-caller => [ -display => '($sub/$line)' ]
+ -caller => [ -display => '($sub/$line)', -postfix => 1 ]
 
 which I find informative enough. On occasion, I found myself using more
 complex sequences.
@@ -590,11 +699,58 @@ information in Log::Agent enables the module to die on critical errors
 with that error prefix, since it cannot rely on the logging driver for
 that, obviously.
 
+=item C<-priority> => [ I<parameters> ]
+
+Request that message priority information be part of the log message.
+The given I<parameters> are handed off to the
+creation routine of Log::Agent::Tag::Priority(3) and are documented there.
+
+I usually say something like:
+
+	-caller => [ -display => '[$priority]' ]
+
+which will display the whole priority name at the beginning of the messages,
+e.g. "[warning]" for a logwarn() or "[error]" for logerr().
+
+B<NOTE>: Using C<-priority> does not prevent the C<-duperr> flag of
+the file driver to also add its own hardwired prefixing in front of
+duplicated error messages.  The two options act at a different level.
+
+=item C<-tags> => [ I<list of C<Log::Agent::Tag> objects> ]
+
+Specifies user-defined tags to be added to each message.  The objects
+given here must inherit from C<Log::Agent::Tag> and conform to its
+interface.  See Log::Agent::Tag(3) for details.
+
+At runtime, well after logconfig() was issued, it may be desirable to
+add (or remove) a user tag.  Use the C<logtags()> routine for this purpose,
+and iteract directly with the tag list object.
+
+For instance, a web module might wish to tag all the messages with a
+session ID, information that might not have been available by the time
+logconfig() was issued.
+
 =item C<-trace> => I<priority or level>
 
 Same a C<-debug> but applies to logsay(), logwarn(), logerr() and logtrc().
 
 When unspecified, C<Log::Agent> runs at the "notice" level.
+
+=back
+
+Additional routines, not exported by default, are:
+
+=over
+
+=item logtags
+
+Returns a C<Log::Agent::Tag_List> object, which holds all user-defined
+tags that are to be added to each log message.
+
+The initial list of tags is normally supplied by the application at
+logconfig() time, via the C<-tags> argument.  To add or remove tags after
+configuration time, one needs direct access to the tag list, obtained via
+this routine.
 
 =back
 

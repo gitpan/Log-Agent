@@ -1,5 +1,5 @@
 #
-# $Id: Caller.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Caller.pm,v 0.2.1.1 2001/03/13 18:45:18 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Caller.pm,v $
+# Revision 0.2.1.1  2001/03/13 18:45:18  ram
+# patch2: created
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -17,7 +20,11 @@
 use strict;
 
 ########################################################################
-package Log::Agent::Caller;
+package Log::Agent::Tag::Caller;
+
+require Log::Agent::Tag;
+use vars qw(@ISA);
+@ISA = qw(Log::Agent::Tag);
 
 #
 # ->make
@@ -32,6 +39,7 @@ package Log::Agent::Caller;
 #	-FORMAT		formatting instructions, like "%s:%d", used along with -INFO
 #	-POSTFIX	whether to postfix log message or prefix it.
 #   -DISPLAY    a string like '($subroutine/$line)', supersedes -INFO
+#   -SEPARATOR  separator string to use between tag and message
 #
 # Attributes:
 #	indices		listref of indices to select in the caller() array
@@ -44,16 +52,18 @@ sub make {
 	my (%args) = @_;
 
 	$self->{'offset'} = 0;
-	$self->{'postfix'} = 0;
 
-	my ($info, $format);
+	my $info;
+	my $postfix = 0;
+	my $separator;
 
 	my %set = (
 		-offset		=> \$self->{'offset'},
 		-info		=> \$info,
 		-format		=> \$self->{'format'},
-		-postfix	=> \$self->{'postfix'},
+		-postfix	=> \$postfix,
 		-display	=> \$self->{'display'},
+		-separator	=> \$separator,
 	);
 
 	while (my ($arg, $val) = each %args) {
@@ -61,6 +71,8 @@ sub make {
 		next unless ref $vset;
 		$$vset = $val;
 	}
+
+	$self->_init("caller", $postfix, $separator);
 
 	return $self if $self->display;		# A display string takes precedence
 
@@ -120,13 +132,12 @@ sub expand_a {
 }}										# endif /* VERSION >= 5.005 */
 
 #
-# ->insert
+# ->string		-- defined
 #
-# Merge caller string into the log message, according to our configuration.
+# Compute string with properly formatted caller info
 #
-sub insert {
+sub string {
 	my $self = shift;
-	my ($str) = @_;			# A Log::Agent::Message object
 
 	#
 	# The following code:
@@ -147,13 +158,17 @@ sub insert {
 
 	#
 	# If there is a display, it takes precedence and is formatted accordingly,
-	# with limited variable substitution. The variables that are recognied
+	# with limited variable substitution. The variables that are recognized
 	# are:
 	#
 	#		$package or $pack		package name of caller
 	#		$filename or $file		filename of caller
 	#		$line					line number of caller
 	#		$subroutine or $sub		routine name of caller
+	#
+	# We recognize both $line and ${line}, the difference being that the
+	# first needs to be at a word boundary (i.e. $lineage would not result
+	# in any expansion).
 	#
 	# Otherwise, the necessary information is gathered from the caller()
 	# output, and formatted via sprintf, along with the special %a macro
@@ -164,10 +179,14 @@ sub insert {
 
 	my $display = $self->display;
 	if ($display) {
-		$display =~ s/\$pack(?:age)?/$package/g;
-		$display =~ s/\$file(?:name)?/$filename/g;
-		$display =~ s/\$line/$line/g;
-		$display =~ s/\$sub(?:routine)?/$subroutine/g;
+		$display =~ s/\$pack(?:age)?\b/$package/g;
+		$display =~ s/\${pack(?:age)?}/$package/g;
+		$display =~ s/\$file(?:name)?\b/$filename/g;
+		$display =~ s/\${file(?:name)?}/$filename/g;
+		$display =~ s/\$line\b/$line/g;
+		$display =~ s/\${line}/$line/g;
+		$display =~ s/\$sub(?:routine)?\b/$subroutine/g;
+		$display =~ s/\${sub(?:routine)?}/$subroutine/g;
 	} else {
 		my @show = map { $caller[$_] } @{$self->indices};
 		my $format = $self->format || ($self->postfix ? "[%a]" : "(%a)");
@@ -175,17 +194,7 @@ sub insert {
 		$display = sprintf $format, @show;
 	}
 
-	#
-	# Merge into the Log::Agent::Message object string.
-	#
-
-	if ($self->postfix) {
-		$str->append(" $display");
-	} else {
-		$str->prepend("$display ");
-	}
-
-	return $str;
+	return $display;
 }
 
 1;			# for "require"
@@ -193,11 +202,12 @@ __END__
 
 =head1 NAME
 
-Log::Agent::Caller - formats caller information
+Log::Agent::Tag::Caller - formats caller information
 
 =head1 SYNOPSIS
 
  Not intended to be used directly
+ Inherits from Log::Agent::Tag.
 
 =head1 DESCRIPTION
 
@@ -289,7 +299,10 @@ Whether the string resulting from the formatting of the caller information
 entities should be appended to the regular log message or not
 (i.e. prepended, which is the default).
 
-Separation from the remaining of the log message is a single space.
+=item C<-separator> => I<string>
+
+The separation string between the tag and the log message.
+A single space by default.
 
 =back
 

@@ -1,3 +1,20 @@
+Tue Mar 13 19:52:02 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Added the -priority and -tags options to logconfig() for
+	including priority string in messages, as well as user-defined
+	tag strings.
+
+	Test the ${line} variable substitution in caller formatting.
+
+	Fixed bug for *BSD systems, which caused the test suite to fail.
+
+	Class Log::Agent::Caller disappered, and is now replaced by
+	Log::Agent::Tag::Caller.
+
+	9 new files, 1 file suppressed.
+
 Sun Nov 12 15:48:21 MET 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
