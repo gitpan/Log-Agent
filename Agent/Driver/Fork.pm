@@ -1,11 +1,11 @@
 ###########################################################################
-# $Id: Fork.pm,v 1.1 2002/03/09 15:47:14 wendigo Exp $
+# $Id: Fork.pm,v 1.2 2002/03/18 18:11:09 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent::Driver::Fork
 #
-# RCS Revision: $Revision: 1.1 $
-# Date: $Date: 2002/03/09 15:47:14 $
+# RCS Revision: $Revision: 1.2 $
+# Date: $Date: 2002/03/18 18:11:09 $
 #
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
 #
@@ -13,6 +13,9 @@
 # distribution for license information.
 #
 # $Log: Fork.pm,v $
+# Revision 1.2  2002/03/18 18:11:09  wendigo
+# Removed paranoid test for correct arguments to make()
+#
 # Revision 1.1  2002/03/09 15:47:14  wendigo
 # Initial revision
 #
@@ -54,25 +57,14 @@ sub make {
     $^W = 1;
 
     # process the arguments
-    ARGLOOP: foreach my $arg (@_) {
+    foreach my $arg (@_) {
         if (ref $arg) {
-            # looks like a driver
-            if ($new_perl) {
-                # prod the UNIVERSAL class
-                if ($arg->isa("Log::Agent::Driver")) {
-                    push(@{$self->{drivers}}, $arg);
-                    next ARGLOOP;
-                }
-            } else {
-                # peek into the object reference, not nearly as good as isa()
-                if ($arg =~ /^Log::Agent::Driver/) {
-                    push(@{$self->{drivers}}, $arg);
-                    next ARGLOOP;
-                }
-            }
+            # add to the list of drivers
+            push(@{$self->{drivers}}, $arg);
+        } else {
+            require Carp;
+            Carp::croak("argument is not an object reference: $arg");
         }
-        require Carp;
-        Carp::croak("argument is not a valid driver: $arg");
     }
 
     return $self;
