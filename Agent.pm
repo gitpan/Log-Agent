@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1.1.1 1999/12/08 21:51:38 ram Exp $
+# $Id: Agent.pm,v 0.1.1.2 1999/12/09 17:30:40 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.2  1999/12/09 17:30:40  ram
+# patch2: wrote two versions of format_args and eval proper one
+#
 # Revision 0.1.1.1  1999/12/08 21:51:38  ram
 # patch1: forgot that /(?<!)/ is a 5.005 feature
 #
@@ -34,7 +37,56 @@ use AutoLoader 'AUTOLOAD';
 
 require Log::Agent::Message;
 
-$VERSION = '0.100';
+$VERSION = '0.102';
+
+###
+### Utilities
+###
+### (not autoloaded due to use of different versions)
+###
+
+#
+# format_args
+#
+# Format arguments using sprintf() if there is more than one, taking the
+# first as the format. Otherwise, we take only its first and only argument.
+#
+# Returns a Log::Agent::Message object, which, when stringified, prints
+# the string itself.
+#
+# We process syslog's %m macro as being the current error message ($!) in
+# the first argument only. Doing it at this level means it will be supported
+# independently from the driver they'll choose. It's also done BEFORE any
+# log-related system call, thus ensuring that $! retains its original value.
+#
+# If caller information is wanted, add it to the log message according to
+# the specifications chosen at logconfig() time.
+#
+if ($] >= 5.005) { eval q{				# if VERSION >= 5.005
+
+# 5.005 and later version grok /(?<!)/
+sub format_args {
+	my $fmt = shift;
+	$fmt =~ s/((?<!%)(?:%%)*)%m/$!/g;
+	my $str = Log::Agent::Message->make(@_ ? sprintf($fmt, @_) : $fmt);
+	$Caller->insert($str) if $Caller;
+	return $str;
+}
+
+}} else { eval q{						# else /* VERSION < 5.005 */
+
+# pre-5.005 does not grok /(?<!)/
+sub format_args {
+	my $fmt = shift;
+	$fmt =~ s/%%/\01/g;
+	$fmt =~ s/%m/$!/g;
+	$fmt =~ s/\01/%%/g;
+	my $str = Log::Agent::Message->make(@_ ? sprintf($fmt, @_) : $fmt);
+	$Caller->insert($str) if $Caller;
+	return $str;
+}
+
+}}										# endif /* VERSION >= 5.005 */
 
 ###
 ### Priority/level mappings
@@ -245,37 +297,6 @@ sub logdbg {
 ###
 ### Utilities
 ###
-
-#
-# format_args
-#
-# Format arguments using sprintf() if there is more than one, taking the
-# first as the format. Otherwise, we take only its first and only argument.
-#
-# Returns a Log::Agent::Message object, which, when stringified, prints
-# the string itself.
-#
-# We process syslog's %m macro as being the current error message ($!) in
-# the first argument only. Doing it at this level means it will be supported
-# independently from the driver they'll choose. It's also done BEFORE any
-# log-related system call, thus ensuring that $! retains its original value.
-#
-# If caller information is wanted, add it to the log message according to
-# the specifications chosen at logconfig() time.
-#
-sub format_args {
-	my $fmt = shift;
-	if ($] >= 5.005) {
-		$fmt =~ s/((?<!%)(?:%%)*)%m/$!/g;
-	} else {
-		$fmt =~ s/%%/\01/g;
-		$fmt =~ s/%m/$!/g;
-		$fmt =~ s/\01/%%/g;
-	}
-	my $str = Log::Agent::Message->make(@_ ? sprintf($fmt, @_) : $fmt);
-	$Caller->insert($str) if $Caller;
-	return $str;
-}
 
 #
 # priority
