@@ -1,12 +1,12 @@
 #!./perl
 ###########################################################################
-# $Id: file.t,v 0.3 2002/02/23 06:28:56 wendigo Exp $
+# $Id: file.t,v 0.4 2004/02/03 03:37:02 wendigo Exp $
 ###########################################################################
 #
 # file.t
 #
-# RCS Revision: $Revision: 0.3 $
-# Date: $Date: 2002/02/23 06:28:56 $
+# RCS Revision: $Revision: 0.4 $
+# Date: $Date: 2004/02/03 03:37:02 $
 #
 # Copyright (C) 1999 Raphael Manfredi
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
@@ -15,6 +15,9 @@
 # distribution for license information.
 #
 # $Log: file.t,v $
+# Revision 0.4  2004/02/03 03:37:02  wendigo
+# Replaced unnecessary file alias with actual file name.
+#
 # Revision 0.3  2002/02/23 06:28:56  wendigo
 # Maintainer change
 # - improved output redirection
@@ -141,7 +144,7 @@ $driver = Log::Agent::Driver::File->make(
     -prefix => 'me',
     -magic_open => 1,
     -channels => {
-        'error' => '>&main::FILE',
+        'error' => '>>t/file.err',
     },
 );
 logconfig(-driver => $driver);

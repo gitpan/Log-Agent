@@ -1,11 +1,11 @@
 ###########################################################################
-# $Id: common.pl,v 1.2 2002/05/12 08:55:53 wendigo Exp $
+# $Id: common.pl,v 1.3 2004/02/02 04:11:27 wendigo Exp $
 ###########################################################################
 #
 # common.pl
 #
-# RCS Revision: $Revision: 1.2 $
-# Date: $Date: 2002/05/12 08:55:53 $
+# RCS Revision: $Revision: 1.3 $
+# Date: $Date: 2004/02/02 04:11:27 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
@@ -14,6 +14,10 @@
 # distribution for license information.
 #
 # $Log: common.pl,v $
+# Revision 1.3  2004/02/02 04:11:27  wendigo
+# Stripped line endings from common tests to allow success on non-UN*X
+# platforms.
+#
 # Revision 1.2  2002/05/12 08:55:53  wendigo
 # added precompilation of regexp in contains()
 #
@@ -32,6 +36,7 @@ sub contains ($$) {
     my $found = 0;
     my $line = 0;
     while (<FILE>) {
+        s/[\n\r]//sg;
         $line++;
         if (/$pattern/) {
             $found = 1;

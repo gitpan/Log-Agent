@@ -1,3 +1,12 @@
+Mon Feb  2 22:34:28 EST 2004   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.6
+
+        Stripped line endings in common tests to allow tests to succeed
+        under non-UN*X environments.  Also replaced an unnecessary handle
+        alias with the actual file name in t/file.t.  Thanks to Jay Lawrence 
+        and Terrence Brannon for pointing out the test problems.
+
 Sat Sep 27 13:56:58 EDT 2003   Mark Rogaski <mrogaski@cpan.org>
 
 . Description:  0.3.5

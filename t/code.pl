@@ -1,5 +1,5 @@
 #
-# $Id: code.pl,v 1.1 2002/03/09 16:16:55 wendigo Exp $
+# $Id: code.pl,v 1.2 2004/02/02 04:11:27 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,10 @@
 #
 # HISTORY
 # $Log: code.pl,v $
+# Revision 1.2  2004/02/02 04:11:27  wendigo
+# Stripped line endings from common tests to allow success on non-UN*X
+# platforms.
+#
 # Revision 1.1  2002/03/09 16:16:55  wendigo
 # New maintainer
 #
@@ -31,6 +35,7 @@ sub contains {
 	my $found = 0;
 	my $line = 0;
 	while (<FILE>) {
+                s/[\n\r]//sg;
 		$line++;
 		if (/$pattern/) {
 			$found = 1;

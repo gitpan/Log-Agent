@@ -1,56 +1,17 @@
 ###########################################################################
-# $Id: Agent.pm,v 1.6 2003/09/27 18:11:13 wendigo Exp $
+# $Id: Agent.pm,v 1.9 2004/02/03 03:37:37 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent
 #
-# RCS Revision: $Revision: 1.6 $
-# Date: $Date: 2003/09/27 18:11:13 $
+# RCS Revision: $Revision: 1.9 $
+# Date: $Date: 2004/02/03 03:37:37 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
 # Copyright (C) 2002-2003 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
 #
 # See the README file included with the
 # distribution for license information.
-#
-# $Log: Agent.pm,v $
-# Revision 1.6  2003/09/27 18:11:13  wendigo
-# Modified comments.
-#
-# Revision 1.5  2003/09/27 17:54:17  wendigo
-# Fixed an simple CVS substitution problem.
-#
-# Revision 1.4  2003/09/27 17:40:40  wendigo
-# Added wrapper for AUTOLOAD to stash $! away in $Log::Agent::OS_Error
-# so it doesn't get clobbered during the execution of &AutoLoader::AUTOLOAD.
-#
-# Revision 1.3  2002/04/26 03:12:56  wendigo
-# *** empty log message ***
-#
-# Revision 1.1  2002/03/09 16:57:56  wendigo
-# New maintainer
-#
-# Revision 0.2.1.6  2001/04/11 15:50:59  ram
-# patch8: added hyperlinks within POD to ease web browsing of manpage
-# patch8: updated version number
-#
-# Revision 0.2.1.5  2001/03/31 09:59:42  ram
-# patch7: massive renaming Devel::Datum -> Carp::Datum
-#
-# Revision 0.2.1.4  2001/03/14 23:42:12  ram
-# patch6: updated version number
-#
-# Revision 0.2.1.3  2001/03/13 19:14:38  ram
-# patch4: fixed typo in -priority documentation
-#
-# Revision 0.2.1.2  2001/03/13 18:44:35  ram
-# patch2: added the -priority and -tags options to logconfig()
-#
-# Revision 0.2.1.1  2000/11/12 14:44:43  ram
-# patch1: forgot to take ref on @_ in bug()
-#
-# Revision 0.2  2000/11/06 19:30:32  ram
-# Baseline for second Alpha release.
 #
 ###########################################################################
 
@@ -79,7 +40,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.305';
+$VERSION = '0.306';
 
 $Trace = NOTICE;	# Default tracing
 $OS_Error = '';         # Data stash for the $! value
