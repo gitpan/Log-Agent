@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Agent.pm,v 0.2.1.1 2000/11/12 14:44:43 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.2.1.1  2000/11/12 14:44:43  ram
+# patch1: forgot to take ref on @_ in bug()
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -37,7 +40,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(caller_format_args);
 
-$VERSION = '0.200';
+$VERSION = '0.201';
 
 $Trace = NOTICE;	# Default tracing
 
@@ -322,7 +325,7 @@ sub logwrite {
 # Log bug, and die.
 #
 sub bug {
-	my $str = caller_format_args($Caller, @_);
+	my $str = caller_format_args($Caller, \@_);
 	logerr("BUG: $str");
 	die "${Prefix}: $str\n";
 }

@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Default.pm,v 0.2.1.1 2000/11/12 14:45:51 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
+# Revision 0.2.1.1  2000/11/12 14:45:51  ram
+# patch1: need to reset $\ before printing
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -57,6 +60,7 @@ sub prefix_msg {
 sub write {
 	my $self = shift;
 	my ($channel, $priority, $logstring) = @_;
+	local $\ = undef;
 	print main::STDERR "$logstring\n";
 }
 

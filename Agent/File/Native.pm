@@ -1,5 +1,5 @@
 #
-# $Id: Native.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Native.pm,v 0.2.1.1 2000/11/12 14:46:40 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #  
 # HISTORY
 # $Log: Native.pm,v $
+# Revision 0.2.1.1  2000/11/12 14:46:40  ram
+# patch1: reset $\ before printing
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -46,6 +49,7 @@ sub make {
 #
 sub print {
 	my $glob = shift;
+	local $\ = undef;
 	return CORE::print $glob @_;
 }
 

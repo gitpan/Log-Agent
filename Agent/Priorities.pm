@@ -1,5 +1,5 @@
 #
-# $Id: Priorities.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Priorities.pm,v 0.2.1.1 2000/11/12 14:46:52 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priorities.pm,v $
+# Revision 0.2.1.1  2000/11/12 14:46:52  ram
+# patch1: fixed indentation
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -143,7 +146,7 @@ The Export column lists the symbolic constants defined by this package.
 They can be imported selectively, or alltogether via the C<:LEVELS>
 tag, as in:
 
- use Log::Agent::Priorities qw(:LEVELS);
+    use Log::Agent::Priorities qw(:LEVELS);
 
 The special token "none" may be used (and spelled out fully) on special
 occasions: it maps to -1, and is convenient when specifying a logging

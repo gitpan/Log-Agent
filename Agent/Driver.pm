@@ -1,5 +1,5 @@
 #
-# $Id: Driver.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Driver.pm,v 0.2.1.1 2000/11/12 14:45:13 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Driver.pm,v $
+# Revision 0.2.1.1  2000/11/12 14:45:13  ram
+# patch1: undef of $\ is now taken care of by channel classes
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -132,7 +135,6 @@ sub write {
 sub emit {
 	my $self = shift;
 	my ($channel, $prio, $msg) = @_;
-	local $\ = undef;
 	$self->write($channel, $self->priority($prio), $self->prefix_msg($msg));
 	return;
 }
@@ -530,11 +532,11 @@ for specific drivers:
 
 =item emit($channel, $prio, $str)
 
-This is a convenient wrapper that resets $\ to C<undef> and calls:
+This is a convenient wrapper that calls:
 
  write($channel, $self->priority($prio), $self->prefix_msg($str))
 
-Since the default log
+using dynamic binding.
 
 =item map_pri($priority, $level)
 

@@ -1,5 +1,5 @@
 #
-# $Id: File.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: File.pm,v 0.2.1.1 2000/11/12 14:46:27 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: File.pm,v $
+# Revision 0.2.1.1  2000/11/12 14:46:27  ram
+# patch1: test for definedness in destructor
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -379,8 +382,9 @@ sub logxcarp {
 sub DESTROY {
 	my $self = shift;
 	my $channel_obj = $self->channel_obj;
+	return unless defined $channel_obj;
 	foreach my $chan (values %$channel_obj) {
-		$chan->close;
+		$chan->close if defined $chan;
 	}
 }
 
