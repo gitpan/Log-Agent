@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 0.2.1.1 2001/03/31 10:01:22 ram Exp $
+# $Id: Message.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Message.pm,v $
+# Revision 1.1  2002/03/09 16:01:37  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/31 10:01:22  ram
 # patch7: fixed =over to add explicit indent level
 #

@@ -1,5 +1,5 @@
 #
-# $Id: String.pm,v 0.2.1.2 2001/03/31 10:02:25 ram Exp $
+# $Id: String.pm,v 1.1 2002/03/09 16:10:33 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: String.pm,v $
+# Revision 1.1  2002/03/09 16:10:33  wendigo
+# New maintainer
+#
 # Revision 0.2.1.2  2001/03/31 10:02:25  ram
 # patch7: fixed =over to add explicit indent level
 #

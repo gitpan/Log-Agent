@@ -1,5 +1,5 @@
 #
-# $Id: Tag_List.pm,v 0.2.1.1 2001/03/13 18:45:22 ram Exp $
+# $Id: Tag_List.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #  
 # HISTORY
 # $Log: Tag_List.pm,v $
+# Revision 1.1  2002/03/09 16:01:37  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/13 18:45:22  ram
 # patch2: created
 #

@@ -1,21 +1,32 @@
+###########################################################################
+# $Id: File.pm,v 1.1 2002/03/09 16:05:44 wendigo Exp $
+###########################################################################
 #
-# $Id: File.pm,v 0.2.1.1 2001/03/31 10:00:14 ram Exp $
+# Log::Agent::
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+# RCS Revision: $Revision: 1.1 $
+# Date: $Date: 2002/03/09 16:05:44 $
 #
-# HISTORY
+###########################################################################
+#
+# Copyright (C) 1999 Raphael Manfredi.
+# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#
+# See the README file in the distribution for license information.
+#
+###########################################################################
+#
 # $Log: File.pm,v $
+# Revision 1.1  2002/03/09 16:05:44  wendigo
+# Added file permission arguments
+#
 # Revision 0.2.1.1  2001/03/31 10:00:14  ram
 # patch7: fixed =over to add explicit indent level
 #
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
-# $EndLog$
-#
+###########################################################################
 
 use strict;
 require Log::Agent::Channel;
@@ -33,22 +44,23 @@ use Fcntl;
 use Log::Agent::Stamping;
 
 #
-# ->make			-- defined
+# ->make        -- defined
 #
 # Creation routine.
 #
 # Attributes (and switches that set them):
 #
-# prefix		the application name
-# stampfmt		stamping format ("syslog", "date", "own", "none") or closure
-# showpid		whether to show pid after prefix in []
-# filename		file name to open (magical open needs -magic_open)
-# magic_open	flag to tell whether ">>file" or "|proc" are allowed filenames
+# prefix        the application name
+# stampfmt      stamping format ("syslog", "date", "own", "none") or closure
+# showpid       whether to show pid after prefix in []
+# filename      file name to open (magical open needs -magic_open)
+# fileperm      permissions to open file with
+# magic_open    flag to tell whether ">>file" or "|proc" are allowed filenames
 # rotate        rotating policy for this file
-# share			true implies that non-magic filenames share the same fd object
+# share         true implies that non-magic filenames share the same fd object
 # no_ucfirst    don't capitalize first letter of message when no prefix
 # no_prefixing  don't prefix logs
-# no_newline	never append any newline character at the end of messages
+# no_newline    never append any newline character at the end of messages
 #
 # Other attributes:
 #
@@ -57,104 +69,106 @@ use Log::Agent::Stamping;
 # warned        records calls made to hardwired warn() to only do them once
 #
 sub make {
-	my $self = bless {}, shift;
-	my (%args) = @_;
+    my $self = bless {}, shift;
+    my (%args) = @_;
 
-	my %set = (
-		-prefix			=> \$self->{'prefix'},
-		-stampfmt		=> \$self->{'stampfmt'},
-		-showpid		=> \$self->{'showpid'},
-		-magic_open		=> \$self->{'magic_open'},
-		-filename		=> \$self->{'filename'},
-		-rotate			=> \$self->{'rotate'},
-		-no_ucfirst		=> \$self->{'no_ucfirst'},
-		-no_prefixing	=> \$self->{'no_prefixing'},
-		-no_newline		=> \$self->{'no_newline'},
-		-share			=> \$self->{'share'},
-	);
+    my %set = (
+        -prefix       => \$self->{'prefix'},
+        -stampfmt     => \$self->{'stampfmt'},
+        -showpid      => \$self->{'showpid'},
+        -magic_open   => \$self->{'magic_open'},
+        -filename     => \$self->{'filename'},
+        -fileperm     => \$self->{'fileperm'},
+        -rotate       => \$self->{'rotate'},
+        -no_ucfirst   => \$self->{'no_ucfirst'},
+        -no_prefixing => \$self->{'no_prefixing'},
+        -no_newline   => \$self->{'no_newline'},
+        -share        => \$self->{'share'},
+    );
 
-	while (my ($arg, $val) = each %args) {
-		my $vset = $set{lc($arg)};
-		unless (ref $vset) {
-			require Carp;
-			Carp::croak("Unknown switch $arg");
-		}
-		$$vset = $val;
-	}
+    while (my ($arg, $val) = each %args) {
+        my $vset = $set{lc($arg)};
+        unless (ref $vset) {
+            require Carp;
+            Carp::croak("Unknown switch $arg");
+        }
+        $$vset = $val;
+    }
 
-	#
-	# Initialize proper time-stamping routine.
-	#
+    #
+    # Initialize proper time-stamping routine.
+    #
 
-	$self->{'stampfmt'} = stamping_fn($self->stampfmt)
-		unless ref $self->stampfmt eq 'CODE';
+    $self->{'stampfmt'} = stamping_fn($self->stampfmt)
+        unless ref $self->stampfmt eq 'CODE';
 
-	$self->{'fd'} = undef;
-	$self->{'crlf'} = $^O =~ /^dos|win/i ? "\r\n" : "\n";
-	$self->{'warned'} = {};
+    $self->{'fd'} = undef;
+    $self->{'crlf'} = $^O =~ /^dos|win/i ? "\r\n" : "\n";
+    $self->{'warned'} = {};
 
-	if ($self->rotate) {
-		eval {
-			require Log::Agent::File::Rotate;
-		};
-		if ($@) {
-			warn $@;
-			require Carp;
-			Carp::croak("Must install Log::Agent::Rotate to use rotation");
-		}
-	}
+    if ($self->rotate) {
+        eval {
+            require Log::Agent::File::Rotate;
+        };
+        if ($@) {
+            warn $@;
+            require Carp;
+            Carp::croak("Must install Log::Agent::Rotate to use rotation");
+        }
+    }
 
-	return $self;
+    return $self;
 }
 
 #
 # Attribute access
 #
 
-sub magic_open		{ $_[0]->{'magic_open'} }
-sub rotate			{ $_[0]->{'rotate'} }
-sub filename		{ $_[0]->{'filename'} }
-sub fd				{ $_[0]->{'fd'} }
-sub share			{ $_[0]->{'share'} }
-sub warned			{ $_[0]->{'warned'} }
+sub magic_open { $_[0]->{'magic_open'} }
+sub rotate     { $_[0]->{'rotate'}     }
+sub filename   { $_[0]->{'filename'}   }
+sub fileperm   { $_[0]->{'fileperm'}   }
+sub fd         { $_[0]->{'fd'}         }
+sub share      { $_[0]->{'share'}      }
+sub warned     { $_[0]->{'warned'}     }
 
 #
-# ->write			-- defined
+# ->write            -- defined
 #
 # Write logstring to the file.
 # Priority is ignored by this channel.
 #
 sub write {
-	my $self = shift;
-	my ($priority, $logstring) = @_;
+    my $self = shift;
+    my ($priority, $logstring) = @_;
 
-	#
-	# This routine is called often...
-	# Bypass the attribute access routines.
-	#
-	
-	my $fd = $self->{fd};
-	$fd = $self->open unless $fd;
-	return unless ref $fd;
+    #
+    # This routine is called often...
+    # Bypass the attribute access routines.
+    #
+    
+    my $fd = $self->{fd};
+    $fd = $self->open unless $fd;
+    return unless ref $fd;
 
-	my $prefix = '';
-	$prefix = $self->prefixing_string(\$logstring)
-		unless $self->{no_prefixing};
+    my $prefix = '';
+    $prefix = $self->prefixing_string(\$logstring)
+        unless $self->{no_prefixing};
 
-	my $crlf = '';
-	$crlf = $self->{crlf} unless $self->{no_newline};
+    my $crlf = '';
+    $crlf = $self->{crlf} unless $self->{no_newline};
 
-	#
-	# The innocent-looking ->print statement below is NOT a polymorphic call.
-	#
-	# It can be targetted on various Log::Agent::File::* objects, which
-	# all happen to provide a print() feature with the same signature.
-	# However, those clases have no inheritance relationship because Perl
-	# is not typed, and the ancestor would be a deferred class anyway.
-	#
+    #
+    # The innocent-looking ->print statement below is NOT a polymorphic call.
+    #
+    # It can be targetted on various Log::Agent::File::* objects, which
+    # all happen to provide a print() feature with the same signature.
+    # However, those clases have no inheritance relationship because Perl
+    # is not typed, and the ancestor would be a deferred class anyway.
+    #
 
-	$fd->print($prefix, $logstring, $crlf);
-	return;
+    $fd->print($prefix, $logstring, $crlf);
+    return;
 }
 
 #
@@ -164,118 +178,129 @@ sub write {
 # Also record opened file within $self->fd.
 #
 sub open {
-	my $self = shift;
-	my $filename = $self->filename;
+    my $self = shift;
+    my $filename = $self->filename;
 
-	require Log::Agent::File::Native;
+    require Log::Agent::File::Native;
 
-	my $fobj;
-	my $note;
+    my $fobj;
+    my $note;
 
-	#
-	# They may use ">file" or "|proc" as channel files if -magic_open
-	#
+    #
+    # They may use ">file" or "|proc" as channel files if -magic_open
+    #
 
-	if ($filename =~ /^\s*[>|]/ && $self->magic_open) {
-		my $h = gensym;
-		$fobj = Log::Agent::File::Native->make($h) if open($h, $filename);
-	} else {
-		#
-		# If the file is already opened, and the current channel can be
-		# shared, do not re-open it: share the same Log::Agent::File::* object,
-		# along with its rotation policy.
-		#
+    if ($filename =~ /^\s*[>|]/ && $self->magic_open) {
 
-		my $rotate = $self->rotate;				# A Log::Agent::Rotate object
-		my $pool;
+        # restrict the permissions
+        my $mask = umask;
+        umask($mask | 0666 ^ $self->fileperm) if defined $self->fileperm;
 
-		if ($self->share) {
-			require Log::Agent::File_Pool;
-			$pool = Log::Agent::File_Pool::file_pool();
-			my ($eobj, $erot) = $pool->get($filename);
+        # open the file
+        my $h = gensym;
+        $fobj = Log::Agent::File::Native->make($h) if open($h, $filename);
 
-			if (defined $eobj) {
-				$fobj = $eobj;			# Reuse same object
-				$note = "rotation for '$filename' may be wrong" .
-					" (shared with distinct policies)" if
-						defined $erot && defined $rotate &&
-						!$erot->is_same($rotate);
-			}
-		}
+        # restore the permissions
+        umask $mask;
 
-		unless (defined $fobj) {
-			if (defined $rotate) {
-				$fobj = Log::Agent::File::Rotate->make($filename, $rotate);
-			} else {
-				my $h = gensym;
-				$fobj = Log::Agent::File::Native->make($h)
-					if sysopen($h, $filename, O_CREAT|O_APPEND|O_WRONLY);
-			}
-		}
+    } else {
+        #
+        # If the file is already opened, and the current channel can be
+        # shared, do not re-open it: share the same Log::Agent::File::* object,
+        # along with its rotation policy.
+        #
 
-		#
-		# Record object in pool if shared, even if already present.
-		# We maintain a refcount of all the shared items.
-		#
+        my $rotate = $self->rotate;                # A Log::Agent::Rotate object
+        my $pool;
 
-		$pool->put($filename, $fobj, $rotate)
-			if defined $fobj && $self->share;
-	}
+        if ($self->share) {
+            require Log::Agent::File_Pool;
+            $pool = Log::Agent::File_Pool::file_pool();
+            my ($eobj, $erot) = $pool->get($filename);
 
-	#
-	# If an error occurred, we have no choice but to emit a warning via warn().
-	# Otherwise, the error would disappear, and we know they don't want to
-	# silence us, or they would not try to open a logfile.
-	#
-	# Warn only once per filename though.
-	#
+            if (defined $eobj) {
+                $fobj = $eobj;            # Reuse same object
+                $note = "rotation for '$filename' may be wrong" .
+                    " (shared with distinct policies)" if
+                        defined $erot && defined $rotate &&
+                        !$erot->is_same($rotate);
+            }
+        }
 
-	unless (defined $fobj) {
-		my $prefix = $self->prefixing_string() || "$0: ";
-		warn "${prefix}can't open logfile \"$filename\": $!\n"
-			unless $self->warned->{$filename}++;
-		return undef;
-	}
+        unless (defined $fobj) {
+            if (defined $rotate) {
+                $fobj = Log::Agent::File::Rotate->make($filename, $rotate);
+            } else {
+                my $h = gensym;
+                $fobj = Log::Agent::File::Native->make($h)
+                        if sysopen($h, $filename, O_CREAT|O_APPEND|O_WRONLY,
+                        defined $self->fileperm ? $self->fileperm : 0666);
+            }
+        }
 
-	$self->{fd} = $fobj || 1;	# Avoid recursion in open if not defined
+        #
+        # Record object in pool if shared, even if already present.
+        # We maintain a refcount of all the shared items.
+        #
 
-	#
-	# Print the note, using ->write() now that $self->fd is recorded.
-	#
+        $pool->put($filename, $fobj, $rotate)
+            if defined $fobj && $self->share;
+    }
 
-	if (defined $note) {
-		$note .= $self->crlf if $self->no_newline;
-		$self->write(undef, $note);
-	}
+    #
+    # If an error occurred, we have no choice but to emit a warning via warn().
+    # Otherwise, the error would disappear, and we know they don't want to
+    # silence us, or they would not try to open a logfile.
+    #
+    # Warn only once per filename though.
+    #
 
-	return $fobj;
+    unless (defined $fobj) {
+        my $prefix = $self->prefixing_string() || "$0: ";
+        warn "${prefix}can't open logfile \"$filename\": $!\n"
+            unless $self->warned->{$filename}++;
+        return undef;
+    }
+
+    $self->{fd} = $fobj || 1;    # Avoid recursion in open if not defined
+
+    #
+    # Print the note, using ->write() now that $self->fd is recorded.
+    #
+
+    if (defined $note) {
+        $note .= $self->crlf if $self->no_newline;
+        $self->write(undef, $note);
+    }
+
+    return $fobj;
 }
 
 #
-# ->close			-- defined
+# ->close            -- defined
 #
 sub close {
-	my $self = shift;
-	my $fd = $self->fd;
-	return unless ref $fd;
+    my $self = shift;
+    my $fd = $self->fd;
+    return unless ref $fd;
 
-	$self->{fd} = 1;			# Prevents further opening from ->write
-	unless ($self->share) {
-		$fd->close;
-		return;
-	}
+    $self->{fd} = 1;            # Prevents further opening from ->write
+    unless ($self->share) {
+        $fd->close;
+        return;
+    }
 
-	#
-	# A shared file is physically closed only when the last reference
-	# to it is removed.
-	#
+    #
+    # A shared file is physically closed only when the last reference
+    # to it is removed.
+    #
 
-	my $pool = Log::Agent::File_Pool::file_pool();
-	$fd->close if $pool->remove($self->filename);
-	return;
+    my $pool = Log::Agent::File_Pool::file_pool();
+    $fd->close if $pool->remove($self->filename);
+    return;
 }
 
-1;	# for require
+1;    # for require
 __END__
 
 =head1 NAME
@@ -292,6 +317,7 @@ Log::Agent::Channel::File - file logging channel for Log::Agent
      -showpid    => 1,
      -magic_open => 0,
      -filename   => "/tmp/output.err",
+     -fileperm   => 0640,
      -share      => 1,
  );
 
@@ -311,6 +337,13 @@ The creation routine make() takes the following arguments:
 
 The file name where output should go.  The file is opened in append mode
 and autoflushing is turned on.  See also the C<-magic_open> flag.
+
+=item C<-fileperm> => I<perm>
+
+The permissions that the file should be opened with (XOR'd with the user's
+umask).  Due to the nature of the underlying open() and sysopen(), the value
+is limited to less than or equal to 0666.  See L<perlfunc(3)/umask> for more
+details.
 
 =item C<-magic_open> => I<flag>
 
@@ -400,9 +433,18 @@ you specify them.  This is especially true when configured for rotation,
 since the logfiles are recreated as needed and you might end up with many
 logfiles scattered throughout all the directories you chdir()ed to.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
+Originally written by Raphael Manfredi E<lt>Raphael_Manfredi@pobox.comE<gt>,
+currently maintained by Mark Rogaski E<lt>mrogaski@cpan.orgE<gt>.
+
+=head1 LICENSE
+
+Copyright (C) 1999 Raphael Manfredi.
+Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+
+See L<Log::Agent(3)> or the README file included with the distribution for
+license information.
 
 =head1 SEE ALSO
 

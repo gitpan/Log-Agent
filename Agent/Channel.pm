@@ -1,5 +1,5 @@
 #
-# $Id: Channel.pm,v 0.2.1.2 2001/04/11 15:51:10 ram Exp $
+# $Id: Channel.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Channel.pm,v $
+# Revision 1.1  2002/03/09 16:01:37  wendigo
+# New maintainer
+#
 # Revision 0.2.1.2  2001/04/11 15:51:10  ram
 # patch8: added hyperlinks within POD to ease web browsing of manpage
 #

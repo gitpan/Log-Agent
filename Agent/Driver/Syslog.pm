@@ -1,5 +1,5 @@
 #
-# $Id: Syslog.pm,v 0.2.1.1 2001/03/31 10:01:13 ram Exp $
+# $Id: Syslog.pm,v 1.1 2002/03/09 15:54:27 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Syslog.pm,v $
+# Revision 1.1  2002/03/09 15:54:27  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/31 10:01:13  ram
 # patch7: fixed =over to add explicit indent level
 #

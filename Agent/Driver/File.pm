@@ -1,13 +1,21 @@
+###########################################################################
+# $Id: File.pm,v 1.1 2002/03/09 15:58:47 wendigo Exp $
+###########################################################################
 #
-# $Id: File.pm,v 0.2.1.2 2001/03/31 10:01:07 ram Exp $
+# Log::Agent::
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+# RCS Revision: $Revision: 1.1 $
+# Date: $Date: 2002/03/09 15:58:47 $
 #
-# HISTORY
+# Copyright (C) 1999 Raphael Manfredi.
+# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#
+# See the README file included in the distribution for license information.
+#
 # $Log: File.pm,v $
+# Revision 1.1  2002/03/09 15:58:47  wendigo
+# Added file permission arguments
+#
 # Revision 0.2.1.2  2001/03/31 10:01:07  ram
 # patch7: fixed =over to add explicit indent level
 # patch7: massive renaming Devel::Datum -> Carp::Datum
@@ -18,8 +26,7 @@
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
-# $EndLog$
-#
+###########################################################################
 
 use strict;
 require Log::Agent::Driver;
@@ -32,120 +39,139 @@ use vars qw(@ISA);
 @ISA = qw(Log::Agent::Driver);
 
 #
-# ->make			-- defined
+# ->make        -- defined
 #
 # Creation routine.
 #
 # Attributes (and switches that set them):
 #
-# prefix		the application name
-# duperr		whether to duplicate "error" channels to "output"
-# stampfmt		stamping format ("syslog", "date", "own", "none") or closure
-# showpid		whether to show pid after prefix in []
-# channels		where each channel ("error", "output", "debug") goes
-# magic_open	flag to tell whether ">>file" or "|proc" are allowed filenames
+# prefix        the application name
+# duperr        whether to duplicate "error" channels to "output"
+# stampfmt      stamping format ("syslog", "date", "own", "none") or closure
+# showpid       whether to show pid after prefix in []
+# channels      where each channel ("error", "output", "debug") goes
+# chanperm      what permissions each channel ("error", "output", "debug") has
+# magic_open    flag to tell whether ">>file" or "|proc" are allowed filenames
 # rotate        default rotating policy for logfiles
 #
 # Additional switches:
 #
-# file			sole channel, implies -duperr = 0 and supersedes -channels
+# file          sole channel, implies -duperr = 0 and supersedes -channels
+# perm          file permissions that supersedes all channel permissions
 #
 # Other attributes:
 #
-# channel_obj	opened channel objects
+# channel_obj        opened channel objects
 #
 sub make {
-	my $self = bless {}, shift;
-	my (%args) = @_;
-	my $prefix;
-	my $file;
+    my $self = bless {}, shift;
+    my (%args) = @_;
+    my $prefix;
+    my $file;
+    my $perm;
 
-	my %set = (
-		-prefix		=> \$prefix,				# Handled by parent via _init
-		-duperr		=> \$self->{'duperr'},
-		-channels	=> \$self->{'channels'},
-		-stampfmt	=> \$self->{'stampfmt'},
-		-showpid	=> \$self->{'showpid'},
-		-magic_open	=> \$self->{'magic_open'},
-		-file		=> \$file,
-		-rotate		=> \$self->{'rotate'},
-	);
+    my %set = (
+        -prefix     => \$prefix,  # Handled by parent via _init
+        -duperr     => \$self->{'duperr'},
+        -channels   => \$self->{'channels'},
+        -chanperm   => \$self->{'chanperm'},
+        -stampfmt   => \$self->{'stampfmt'},
+        -showpid    => \$self->{'showpid'},
+        -magic_open => \$self->{'magic_open'},
+        -file       => \$file,
+        -perm       => \$perm,
+        -rotate     => \$self->{'rotate'},
+    );
 
-	while (my ($arg, $val) = each %args) {
-		my $vset = $set{lc($arg)};
-		unless (ref $vset) {
-			require Carp;
-			Carp::croak("Unknown switch $arg");
-		}
-		$$vset = $val;
-	}
+    while (my ($arg, $val) = each %args) {
+        my $vset = $set{lc($arg)};
+        unless (ref $vset) {
+            require Carp;
+            Carp::croak("Unknown switch $arg");
+        }
+        $$vset = $val;
+    }
 
-	#
-	# If -file was used, it supersedes -duperr and -channels
-	#
+    #
+    # If -file was used, it supersedes -duperr and -channels
+    #
 
-	if (defined $file && length $file) {
-		$self->{'channels'} = {
-			'debug'		=> $file,
-			'output'	=> $file,
-			'error'		=> $file,
-		};
-		$self->{'duperr'} = 0;
-	}
+    if (defined $file && length $file) {
+        $self->{'channels'} = {
+            'debug'  => $file,
+            'output' => $file,
+            'error'  => $file,
+        };
+        $self->{'duperr'} = 0;
+    }
 
-	$self->_init($prefix, 0);		# 1 is the skip Carp penalty for confess
+    #
+    # and we do something similar for file permissions
+    #
 
-	$self->{'channels'} = {} unless $self->channels;	# No defined channel
-	$self->{'channel_obj'} = {};						# No opened files
+    if (defined $perm && length $perm) {
+        $self->{chanperm} = {
+            debug  => $perm,
+            output => $perm,
+            error  => $perm
+        };
+    }
 
-	#
-	# Check for logfile rotation, which can be specified on a global or
-	# file by file basis.  Since Log::Agent::Rotate is a separate extension,
-	# it may not be installed.
-	#
+    $self->_init($prefix, 0);  # 1 is the skip Carp penalty for confess
 
-	my $use_rotate = defined($self->rotate) ? 1 : 0;
-	unless ($use_rotate) {
-		foreach my $chan (keys %{$self->channels}) {
-			$use_rotate = 1 if ref $self->channels->{$chan} eq 'ARRAY';
-			last if $use_rotate;
-		}
-	}
+    $self->{channels}    = {} unless $self->channels;  # No defined channels
+    $self->{chanperm}    = {} unless $self->chanperm;  # No defined perms
+    $self->{channel_obj} = {};                         # No opened files
 
-	if ($use_rotate) {
-		eval {
-			require Log::Agent::File::Rotate;
-		};
-		if ($@) {
-			warn $@;
-			require Carp;
-			Carp::croak("Must install Log::Agent::Rotate to use rotation");
-		}
-	}
+    #
+    # Check for logfile rotation, which can be specified on a global or
+    # file by file basis.  Since Log::Agent::Rotate is a separate extension,
+    # it may not be installed.
+    #
 
-	return $self;
+    my $use_rotate = defined($self->rotate) ? 1 : 0;
+    unless ($use_rotate) {
+        foreach my $chan (keys %{$self->channels}) {
+            $use_rotate = 1 if ref $self->channels->{$chan} eq 'ARRAY';
+            last if $use_rotate;
+        }
+    }
+
+    if ($use_rotate) {
+        eval {
+            require Log::Agent::File::Rotate;
+        };
+        if ($@) {
+            warn $@;
+            require Carp;
+            Carp::croak("Must install Log::Agent::Rotate to use rotation");
+        }
+    }
+
+    return $self;
 }
 
 #
 # Attribute access
 #
 
-sub duperr		{ $_[0]->{'duperr'} }
-sub channels	{ $_[0]->{'channels'} }
-sub channel_obj	{ $_[0]->{'channel_obj'} }
-sub stampfmt	{ $_[0]->{'stampfmt'} }
-sub showpid		{ $_[0]->{'showpid'} }
-sub magic_open	{ $_[0]->{'magic_open'} }
-sub rotate		{ $_[0]->{'rotate'} }
+sub duperr      { $_[0]->{duperr}      }
+sub channels    { $_[0]->{channels}    }
+sub chanperm    { $_[0]->{chanperm}    }
+sub channel_obj { $_[0]->{channel_obj} }
+sub stampfmt    { $_[0]->{stampfmt}    }
+sub showpid     { $_[0]->{showpid}     }
+sub magic_open  { $_[0]->{magic_open}  }
+sub rotate      { $_[0]->{rotate}      }
 
 #
-# ->prefix_msg		-- defined
+# ->prefix_msg  -- defined
 #
 # NOP: channel handles prefixing for us.
 #
 sub prefix_msg {
-	my $self = shift;
-	return $_[0];
+    my $self = shift;
+    return $_[0];
 }
 
 #
@@ -154,22 +180,22 @@ sub prefix_msg {
 # Return channel file name.
 #
 sub chanfn {
-	my $self = shift;
-	my ($channel) = @_;
-	my $filename = $self->channels->{$channel};
-	if (ref $filename eq 'ARRAY') {
-		$filename = $filename->[0];
-	}
-	# No channel defined, use 'error'
-	$filename = $self->channels->{'error'} unless
-		defined $filename && length $filename;
-	$filename = '<STDERR>' unless defined $filename;
+    my $self = shift;
+    my ($channel) = @_;
+    my $filename = $self->channels->{$channel};
+    if (ref $filename eq 'ARRAY') {
+        $filename = $filename->[0];
+    }
+    # No channel defined, use 'error'
+    $filename = $self->channels->{'error'} unless
+            defined $filename && length $filename;
+    $filename = '<STDERR>' unless defined $filename;
 
-	return $filename;
+    return $filename;
 }
 
 #
-# ->channel_eq		-- defined
+# ->channel_eq  -- defined
 #
 # Compare two channels.
 #
@@ -179,23 +205,23 @@ sub chanfn {
 # when traces are remapped to Carp::Datum.
 #
 sub channel_eq {
-	my $self = shift;
-	my ($chan1, $chan2) = @_;
-	my $fn1 = $self->chanfn($chan1);
-	my $fn2 = $self->chanfn($chan2);
-	return $fn1 eq $fn2;
+    my $self = shift;
+    my ($chan1, $chan2) = @_;
+    my $fn1 = $self->chanfn($chan1);
+    my $fn2 = $self->chanfn($chan2);
+    return $fn1 eq $fn2;
 }
 
 #
-# ->write			-- defined
+# ->write       -- defined
 #
 sub write {
-	my $self = shift;
-	my ($channel, $priority, $logstring) = @_;
-	my $chan = $self->channel($channel);
-	return unless $chan;
+    my $self = shift;
+    my ($channel, $priority, $logstring) = @_;
+    my $chan = $self->channel($channel);
+    return unless $chan;
 
-	$chan->write($priority, $logstring);
+    $chan->write($priority, $logstring);
 }
 
 #
@@ -204,11 +230,11 @@ sub write {
 # Return channel object (one of the Log::Agent::Channel::* objects)
 #
 sub channel {
-	my $self = shift;
-	my ($name) = @_;
-	my $obj = $self->channel_obj->{$name};
-	$obj = $self->open_channel($name) unless $obj;
-	return $obj;
+    my $self = shift;
+    my ($name) = @_;
+    my $obj = $self->channel_obj->{$name};
+    $obj = $self->open_channel($name) unless $obj;
+    return $obj;
 }
 
 
@@ -221,55 +247,57 @@ sub channel {
 # If no channel of that name was defined, use 'error' or STDERR.
 #
 sub open_channel {
-	my $self = shift;
-	my ($name) = @_;
-	my $filename = $self->channels->{$name};
+    my $self = shift;
+    my ($name) = @_;
+    my $filename = $self->channels->{$name};
 
-	#
-	# Handle possible logfile rotation, which may be defined globally
-	# or on a file by file basis.
-	#
+    #
+    # Handle possible logfile rotation, which may be defined globally
+    # or on a file by file basis.
+    #
 
-	my $rotate;							# A Log::Agent::Rotate object
-	if (ref $filename eq 'ARRAY') {
-		($filename, $rotate) = @$filename;
-	} else {
-		$rotate = $self->rotate;
-	}
+    my $rotate;        # A Log::Agent::Rotate object
+    if (ref $filename eq 'ARRAY') {
+        ($filename, $rotate) = @$filename;
+    } else {
+        $rotate = $self->rotate;
+    }
 
-	my @common_args = (
-		-prefix		=> $self->prefix,
-		-stampfmt	=> $self->stampfmt,
-		-showpid	=> $self->showpid,
-	);
-	my @other_args;
-	my $type;
+    my @common_args = (
+        -prefix   => $self->prefix,
+        -stampfmt => $self->stampfmt,
+        -showpid  => $self->showpid,
+    );
+    my @other_args;
+    my $type;
 
-	#
-	# No channel defined, use 'error', or revert to STDERR
-	#
+    #
+    # No channel defined, use 'error', or revert to STDERR
+    #
 
-	$filename = $self->channels->{'error'} unless
-		defined $filename && length $filename;
+    $filename = $self->channels->{'error'} unless
+            defined $filename && length $filename;
 
-	unless (defined $filename && length $filename) {
-		require Log::Agent::Channel::Handle;
-		select((select(main::STDERR), $| = 1)[0]);
-		$type = "Log::Agent::Channel::Handle";
-		@other_args = (-handle => \*main::STDERR);
-	} else {
-		require Log::Agent::Channel::File;
-		$type = "Log::Agent::Channel::File";
-		@other_args = (
-			-filename		=> $filename,
-			-magic_open		=> $self->magic_open,
-			-share			=> 1,
-		);
-		push(@other_args, -rotate => $rotate) if ref $rotate;
-	}
+    unless (defined $filename && length $filename) {
+        require Log::Agent::Channel::Handle;
+        select((select(main::STDERR), $| = 1)[0]);
+        $type = "Log::Agent::Channel::Handle";
+        @other_args = (-handle => \*main::STDERR);
+    } else {
+        require Log::Agent::Channel::File;
+        $type = "Log::Agent::Channel::File";
+        @other_args = (
+            -filename   => $filename,
+            -magic_open => $self->magic_open,
+            -share      => 1,
+        );
+        push(@other_args, -fileperm   => $self->chanperm->{$name})
+                if $self->chanperm->{$name};
+        push(@other_args, -rotate => $rotate) if ref $rotate;
+    }
 
-	return $self->channel_obj->{$name} =
-		$type->make(@common_args, @other_args);
+    return $self->channel_obj->{$name} =
+            $type->make(@common_args, @other_args);
 }
 
 #
@@ -278,11 +306,11 @@ sub open_channel {
 # Force error message to the regular 'output' channel with a specified tag.
 #
 sub emit_output {
-	my $self = shift;
-	my ($prio, $tag, $str) = @_;
-	my $cstr = $str->clone;				# We're prepending tag on a copy
-	$cstr->prepend("$tag: ");
-	$self->write('output', $prio, $cstr);
+    my $self = shift;
+    my ($prio, $tag, $str) = @_;
+    my $cstr = $str->clone;       # We're prepending tag on a copy
+    $cstr->prepend("$tag: ");
+    $self->write('output', $prio, $cstr);
 }
 
 ###
@@ -296,10 +324,10 @@ sub emit_output {
 # with FATAL.
 #
 sub logconfess {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit_output('critical', "FATAL", $str) if $self->duperr;
-	$self->SUPER::logconfess($str);		# Carp strips calls within hierarchy
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit_output('critical', "FATAL", $str) if $self->duperr;
+    $self->SUPER::logconfess($str);    # Carp strips calls within hierarchy
 }
 
 #
@@ -309,18 +337,18 @@ sub logconfess {
 # with FATAL.
 #
 sub logxcroak {
-	my $self = shift;
-	my ($offset, $str) = @_;
-	my $msg = Log::Agent::Message->make(
-		$self->carpmess($offset, $str, \&Carp::shortmess)
-	);
-	$self->emit_output('critical', "FATAL", $msg) if $self->duperr;
+    my $self = shift;
+    my ($offset, $str) = @_;
+    my $msg = Log::Agent::Message->make(
+        $self->carpmess($offset, $str, \&Carp::shortmess)
+    );
+    $self->emit_output('critical', "FATAL", $msg) if $self->duperr;
 
-	#
-	# Carp strips calls within hierarchy, so that new call should not show,
-	# there's no need to adjust the frame offset.
-	#
-	$self->SUPER::logdie($msg);
+    #
+    # Carp strips calls within hierarchy, so that new call should not show,
+    # there's no need to adjust the frame offset.
+    #
+    $self->SUPER::logdie($msg);
 }
 
 #
@@ -330,10 +358,10 @@ sub logxcroak {
 # with FATAL.
 #
 sub logdie {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit_output('critical', "FATAL", $str) if $self->duperr;
-	$self->SUPER::logdie($str);
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit_output('critical', "FATAL", $str) if $self->duperr;
+    $self->SUPER::logdie($str);
 }
 
 #
@@ -343,10 +371,10 @@ sub logdie {
 # with ERROR.
 #
 sub logerr {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit_output('error', "ERROR", $str) if $self->duperr;
-	$self->SUPER::logerr($str);
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit_output('error', "ERROR", $str) if $self->duperr;
+    $self->SUPER::logerr($str);
 }
 
 #
@@ -356,10 +384,10 @@ sub logerr {
 # with WARNING.
 #
 sub logwarn {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit_output('warning', "WARNING", $str) if $self->duperr;
-	$self->SUPER::logwarn($str);
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit_output('warning', "WARNING", $str) if $self->duperr;
+    $self->SUPER::logwarn($str);
 }
 
 #
@@ -369,13 +397,13 @@ sub logwarn {
 # with WARNING.
 #
 sub logxcarp {
-	my $self = shift;
-	my ($offset, $str) = @_;
-	my $msg = Log::Agent::Message->make(
-		$self->carpmess($offset, $str, \&Carp::shortmess)
-	);
-	$self->emit_output('warning', "WARNING", $msg) if $self->duperr;
-	$self->SUPER::logwarn($msg);
+    my $self = shift;
+    my ($offset, $str) = @_;
+    my $msg = Log::Agent::Message->make(
+        $self->carpmess($offset, $str, \&Carp::shortmess)
+    );
+    $self->emit_output('warning', "WARNING", $msg) if $self->duperr;
+    $self->SUPER::logwarn($msg);
 }
 
 #
@@ -384,15 +412,15 @@ sub logxcarp {
 # Close all opened channels, so they may be removed from the common pool.
 #
 sub DESTROY {
-	my $self = shift;
-	my $channel_obj = $self->channel_obj;
-	return unless defined $channel_obj;
-	foreach my $chan (values %$channel_obj) {
-		$chan->close if defined $chan;
-	}
+    my $self = shift;
+    my $channel_obj = $self->channel_obj;
+    return unless defined $channel_obj;
+    foreach my $chan (values %$channel_obj) {
+        $chan->close if defined $chan;
+    }
 }
 
-1;	# for require
+1;        # for require
 __END__
 
 =head1 NAME
@@ -411,10 +439,15 @@ Log::Agent::Driver::File - file logging driver for Log::Agent
      -showpid    => 1,
      -magic_open => 0,
      -channels   => {
-        'error'   => '/tmp/output.err',
-        'output'  => 'log.out',
-        'debug'   => '../appli.debug',
+        error   => '/tmp/output.err',
+        output  => 'log.out',
+        debug   => '../appli.debug',
      },
+     -chanperm   => {
+        error   => 0777,
+        output  => 0666,
+        debug   => 0644
+     }
  );
  logconfig(-driver => $driver);
 
@@ -471,6 +504,15 @@ In the above example, the rotation policy for the C<debug> channel will
 not be activated, since the channel is opened via a I<magic> method.
 See L<Log::Agent::Rotate> for more details.
 
+=item C<-chanperm> => I<hash ref>
+
+Specifies the file permissions for the channels specified by C<-channels>.
+The arguemtn is a hash ref, indexed by channel name, with numeric values.
+This option is only necessary to override the default permissions used by
+Log::Agent::Channel::File.  It is generally better to leave these
+permissive and rely on the user's umask.
+See L<perlfunc(3)/umask> for more details..
+
 =item C<-duperr> => I<flag>
 
 When true, all messages normally sent to the C<error> channel are also
@@ -488,6 +530,11 @@ Default is false.
 
 This switch supersedes both C<-duperr> and C<-channels> by defining a
 single file for all the channels.
+
+=item C<-perm> => I<perm>
+
+This switch supersedes C<-chanperm> by defining consistent for all
+the channels.
 
 =item C<-magic_open> => I<flag>
 
@@ -564,9 +611,21 @@ Such errors are flagged at runtime with the following message:
 
 emitted in the logs upon subsequent sharing.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
+Originally written by Raphael Manfredi E<lt>Raphael_Manfredi@pobox.comE<gt>,
+currently maintained by Mark Rogaski E<lt>mrogaski@cpan.orgE<gt>.
+
+Thanks to Joseph Pepin for suggesting the file permissions arguments
+to make().
+
+=head1 LICENSE
+
+Copyright (C) 1999 Raphael Manfredi.
+Copyright (C) 2002 Mark Rogaski; all rights reserved.
+
+See L<Log::Agent(3)> or the README file included with the distribution for
+license information.
 
 =head1 SEE ALSO
 

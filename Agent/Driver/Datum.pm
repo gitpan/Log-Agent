@@ -1,5 +1,5 @@
 #
-# $Id: Datum.pm,v 0.2.1.1 2001/03/31 10:00:41 ram Exp $
+# $Id: Datum.pm,v 1.1 2002/03/09 15:53:16 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Datum.pm,v $
+# Revision 1.1  2002/03/09 15:53:16  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/31 10:00:41  ram
 # patch7: massive renaming Devel::Datum -> Carp::Datum
 #

@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: tag_string.t,v 0.2.1.1 2001/03/13 18:49:29 ram Exp $
+# $Id: tag_string.t,v 1.1 2002/03/09 16:16:55 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: tag_string.t,v $
+# Revision 1.1  2002/03/09 16:16:55  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/13 18:49:29  ram
 # patch2: created
 #

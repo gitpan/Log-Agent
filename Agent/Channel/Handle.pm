@@ -1,5 +1,5 @@
 #
-# $Id: Handle.pm,v 0.2.1.1 2001/03/31 10:00:16 ram Exp $
+# $Id: Handle.pm,v 1.1 2002/03/09 16:06:26 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Handle.pm,v $
+# Revision 1.1  2002/03/09 16:06:26  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/31 10:00:16  ram
 # patch7: fixed =over to add explicit indent level
 #

@@ -1,5 +1,5 @@
 #
-# $Id: Callback.pm,v 0.2.1.2 2001/03/31 10:02:20 ram Exp $
+# $Id: Callback.pm,v 1.1 2002/03/09 16:10:33 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Callback.pm,v $
+# Revision 1.1  2002/03/09 16:10:33  wendigo
+# New maintainer
+#
 # Revision 0.2.1.2  2001/03/31 10:02:20  ram
 # patch7: fixed =over to add explicit indent level
 #

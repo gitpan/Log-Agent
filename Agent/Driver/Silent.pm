@@ -1,5 +1,5 @@
 #
-# $Id: Silent.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Silent.pm,v 1.1 2002/03/09 15:54:27 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Silent.pm,v $
+# Revision 1.1  2002/03/09 15:54:27  wendigo
+# New maintainer
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #

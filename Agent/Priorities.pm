@@ -1,5 +1,5 @@
 #
-# $Id: Priorities.pm,v 0.2.1.3 2001/04/11 15:51:55 ram Exp $
+# $Id: Priorities.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priorities.pm,v $
+# Revision 1.1  2002/03/09 16:01:37  wendigo
+# New maintainer
+#
 # Revision 0.2.1.3  2001/04/11 15:51:55  ram
 # patch8: routines are now auto-loaded
 #

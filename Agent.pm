@@ -1,13 +1,22 @@
+###########################################################################
+# $Id: Agent.pm,v 1.1 2002/03/09 16:57:56 wendigo Exp $
+###########################################################################
 #
-# $Id: Agent.pm,v 0.2.1.6 2001/04/11 15:50:59 ram Exp $
+# Log::Agent
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+# RCS Revision: $Revision: 1.1 $
+# Date: $Date: 2002/03/09 16:57:56 $
 #
-# HISTORY
+# Copyright (C) 1999 Raphael Manfredi.
+# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#
+# See the README file included with the
+# distribution for license information.
+#
 # $Log: Agent.pm,v $
+# Revision 1.1  2002/03/09 16:57:56  wendigo
+# New maintainer
+#
 # Revision 0.2.1.6  2001/04/11 15:50:59  ram
 # patch8: added hyperlinks within POD to ease web browsing of manpage
 # patch8: updated version number
@@ -30,8 +39,7 @@
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
-# $EndLog$
-#
+###########################################################################
 
 use strict;
 require Exporter;
@@ -58,7 +66,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.208';
+$VERSION = sprintf "%d.%01d%02d", (split /\D+/, '$Name: rel0_3_0 $')[1..3];
 
 $Trace = NOTICE;	# Default tracing
 

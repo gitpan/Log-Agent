@@ -11,6 +11,7 @@ Agent/Driver.pm                  Ancestor for all drivers
 Agent/Driver/Datum.pm            Intercepting driver for Devel::Datum
 Agent/Driver/Default.pm          Default logging driver
 Agent/Driver/File.pm             File driver
+Agent/Driver/Fork.pm             Fork to split output to multiple drivers
 Agent/Driver/Silent.pm           Silent driver
 Agent/Driver/Syslog.pm           Syslog driver
 Agent/File/Native.pm             A native file handle
@@ -26,16 +27,18 @@ Agent/Tag/Caller.pm              Computes and formats caller information
 Agent/Tag/Priority.pm            Add priority/level information to messages
 Agent/Tag/String.pm              Add constant string to messages
 Agent/Tag_List.pm                Holds list of user-defined tags
-patchlevel.h                     Records the current patchlevel
 t/caller.t                       Test caller information
 t/carp.pl                        Library for tests
 t/carp_default.t                 Test logcarp() and logxcarp() with defaults
 t/carp_file.t                    Test logcarp() and logxcarp() to file
+t/carp_fork.t                    Test logcarp() and logxcarp() to fork
 t/carp_silent.t                  Test logcarp() and logcroak() with silent
 t/code.pl                        Library for tests
+t/common.pl                      Library for tests
 t/default.t                      Test default settings and driver
 t/default_exp.t                  Test default settings, explicit logconfig()
 t/file.t                         Test file driver
+t/fork.t                         Test driver fork
 t/priority.t                     Test -priority setting in logconfig()
 t/tag_callback.t                 Test log message tag via callback
 t/tag_string.t                   Test log message tag via string

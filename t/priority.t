@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: priority.t,v 0.2.1.1 2001/03/13 18:48:06 ram Exp $
+# $Id: priority.t,v 1.1 2002/03/09 16:16:55 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: priority.t,v $
+# Revision 1.1  2002/03/09 16:16:55  wendigo
+# New maintainer
+#
 # Revision 0.2.1.1  2001/03/13 18:48:06  ram
 # patch2: fixed bug for *BSD systems
 # patch2: created

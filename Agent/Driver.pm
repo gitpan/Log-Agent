@@ -1,5 +1,5 @@
 #
-# $Id: Driver.pm,v 0.2.1.2 2001/03/31 10:00:30 ram Exp $
+# $Id: Driver.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Driver.pm,v $
+# Revision 1.1  2002/03/09 16:01:37  wendigo
+# New maintainer
+#
 # Revision 0.2.1.2  2001/03/31 10:00:30  ram
 # patch7: fixed =over to add explicit indent level
 # patch7: massive renaming Devel::Datum -> Carp::Datum

@@ -1,13 +1,22 @@
+###########################################################################
+# $Id: Caller.pm,v 1.1 2002/03/09 16:09:45 wendigo Exp $
+###########################################################################
 #
-# $Id: Caller.pm,v 0.2.1.2 2001/03/31 10:02:22 ram Exp $
+# Log::Agent::Tag::Caller
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+# RCS Revision: $Revision: 1.1 $
+# Date: $Date: 2002/03/09 16:09:45 $
 #
-# HISTORY
+# Copyright (C) 1999 Raphael Manfredi
+# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#
+# See the README file included with the
+# distribution for license information.
+#
 # $Log: Caller.pm,v $
+# Revision 1.1  2002/03/09 16:09:45  wendigo
+# Corrected  initialization
+#
 # Revision 0.2.1.2  2001/03/31 10:02:22  ram
 # patch7: fixed =over to add explicit indent level
 #
@@ -17,8 +26,7 @@
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
-# $EndLog$
-#
+###########################################################################
 
 use strict;
 
@@ -37,170 +45,174 @@ use vars qw(@ISA);
 # Calling arguments: a hash table list.
 #
 # The keyed argument list may contain:
-#	-OFFSET		value for the offset attribute [NOT DOCUMENTED]
-#	-INFO		string of keywords like "package filename line subroutine"
-#	-FORMAT		formatting instructions, like "%s:%d", used along with -INFO
-#	-POSTFIX	whether to postfix log message or prefix it.
+#    -OFFSET        value for the offset attribute [NOT DOCUMENTED]
+#    -INFO        string of keywords like "package filename line subroutine"
+#    -FORMAT        formatting instructions, like "%s:%d", used along with -INFO
+#    -POSTFIX    whether to postfix log message or prefix it.
 #   -DISPLAY    a string like '($subroutine/$line)', supersedes -INFO
 #   -SEPARATOR  separator string to use between tag and message
 #
 # Attributes:
-#	indices		listref of indices to select in the caller() array
-#	offset		how many stack frames are between us and the caller we trace
-#	format		how to format extracted caller() info
-#	postfix		true if info to append to logged string
+#    indices        listref of indices to select in the caller() array
+#    offset        how many stack frames are between us and the caller we trace
+#    format        how to format extracted caller() info
+#    postfix        true if info to append to logged string
 #
 sub make {
-	my $self = bless {}, shift;
-	my (%args) = @_;
+    my $self = bless {}, shift;
+    my (%args) = @_;
 
-	$self->{'offset'} = 0;
+    $self->{'offset'} = 0;
 
-	my $info;
-	my $postfix = 0;
-	my $separator;
+    my $info;
+    my $postfix = 0;
+    my $separator;
 
-	my %set = (
-		-offset		=> \$self->{'offset'},
-		-info		=> \$info,
-		-format		=> \$self->{'format'},
-		-postfix	=> \$postfix,
-		-display	=> \$self->{'display'},
-		-separator	=> \$separator,
-	);
+    my %set = (
+        -offset        => \$self->{'offset'},
+        -info        => \$info,
+        -format        => \$self->{'format'},
+        -postfix    => \$postfix,
+        -display    => \$self->{'display'},
+        -separator    => \$separator,
+    );
 
-	while (my ($arg, $val) = each %args) {
-		my $vset = $set{lc($arg)};
-		next unless ref $vset;
-		$$vset = $val;
-	}
+    while (my ($arg, $val) = each %args) {
+        my $vset = $set{lc($arg)};
+        next unless ref $vset;
+        $$vset = $val;
+    }
 
-	$self->_init("caller", $postfix, $separator);
+    $self->_init("caller", $postfix, $separator);
 
-	return $self if $self->display;		# A display string takes precedence
+    return $self if $self->display;        # A display string takes precedence
 
-	#
-	# pre-process info to compute the indices
-	#
+    #
+    # pre-process info to compute the indices
+    #
 
-	my $i = 0;
-	my %indices = map { $_ => $i++ } qw(pac fil lin sub);	# abbrevs
-	my @indices = ();
+    my $i = 0;
+    my %indices = map { $_ => $i++ } qw(pac fil lin sub);    # abbrevs
+    my @indices = ();
 
-	foreach my $token (split(' ', $info)) {
-		my $abbr = substr($token, 0, 3);
-		push(@indices, $indices{$abbr}) if exists $indices{$abbr};
-	}
+    foreach my $token (split(' ', $info)) {
+        my $abbr = substr($token, 0, 3);
+        push(@indices, $indices{$abbr}) if exists $indices{$abbr};
+    }
 
-	$self->{'indices'} = \@indices;
+    $self->{'indices'} = \@indices;
 
-	return $self;
+    return $self;
 }
 
 #
 # Attribute access
 #
 
-sub offset		{ $_[0]->{'offset'} }
-sub indices		{ $_[0]->{'indices'} }
-sub format		{ $_[0]->{'format'} }
-sub display		{ $_[0]->{'display'} }
-sub postfix		{ $_[0]->{'postfix'} }
+sub offset        { $_[0]->{'offset'} }
+sub indices        { $_[0]->{'indices'} }
+sub format        { $_[0]->{'format'} }
+sub display        { $_[0]->{'display'} }
+sub postfix        { $_[0]->{'postfix'} }
 
 #
 # expand_a
 #
 # Expand the %a macro and return new string.
 #
-if ($] >= 5.005) { eval q{				# if VERSION >= 5.005
+if ($] >= 5.005) { eval q{                # if VERSION >= 5.005
 
 # 5.005 and later version grok /(?<!)/
 sub expand_a {
-	my ($str, $aref) = @_;
-	$str =~ s/((?<!%)(?:%%)*)%a/join(':', @$aref)/ge;
-	return $str;
+    my ($str, $aref) = @_;
+    $str =~ s/((?<!%)(?:%%)*)%a/join(':', @$aref)/ge;
+    return $str;
 }
 
-}} else { eval q{						# else /* VERSION < 5.005 */
+}} else { eval q{                        # else /* VERSION < 5.005 */
 
 # pre-5.005 does not grok /(?<!)/
 sub expand_a {
-	my ($str, $aref) = @_;
-	$str =~ s/%%/\01/g;
-	$str =~ s/%a/join(':', @$aref)/ge;
-	$str =~ s/\01/%%/g;
-	return $str;
+    my ($str, $aref) = @_;
+    $str =~ s/%%/\01/g;
+    $str =~ s/%a/join(':', @$aref)/ge;
+    $str =~ s/\01/%%/g;
+    return $str;
 }
 
-}}										# endif /* VERSION >= 5.005 */
+}}                                        # endif /* VERSION >= 5.005 */
 
 #
-# ->string		-- defined
+# ->string        -- defined
 #
 # Compute string with properly formatted caller info
 #
 sub string {
-	my $self = shift;
+    my $self = shift;
 
-	#
-	# The following code:
-	#
-	#	sub foo {
-	#		my ($pack, $file, $line, $sub) = caller(0);
-	#		print "excuting $sub called at $file/$line in $pack";
-	#	}
-	#
-	# will report who called us, except that $sub will be US, not our CALLER!
-	# This is an "anomaly" somehow, and therefore to get the routine name
-	# that called us, we need to move one frame above the ->offset value.
-	#
+    #
+    # The following code:
+    #
+    #    sub foo {
+    #        my ($pack, $file, $line, $sub) = caller(0);
+    #        print "excuting $sub called at $file/$line in $pack";
+    #    }
+    #
+    # will report who called us, except that $sub will be US, not our CALLER!
+    # This is an "anomaly" somehow, and therefore to get the routine name
+    # that called us, we need to move one frame above the ->offset value.
+    #
 
-	my @caller = caller($self->offset);
-	$caller[3] = (caller($self->offset + 1))[3];	# Anomaly in caller()!
-	my ($package, $filename, $line, $subroutine) = @caller;
+    my @caller = caller($self->offset);
+    
+    # Kludge for anomalies in caller()
+    # Thanks to Jeff Boes for finding the second one!
+    $caller[3] = (caller($self->offset + 1))[3] || '(main)';
 
-	#
-	# If there is a display, it takes precedence and is formatted accordingly,
-	# with limited variable substitution. The variables that are recognized
-	# are:
-	#
-	#		$package or $pack		package name of caller
-	#		$filename or $file		filename of caller
-	#		$line					line number of caller
-	#		$subroutine or $sub		routine name of caller
-	#
-	# We recognize both $line and ${line}, the difference being that the
-	# first needs to be at a word boundary (i.e. $lineage would not result
-	# in any expansion).
-	#
-	# Otherwise, the necessary information is gathered from the caller()
-	# output, and formatted via sprintf, along with the special %a macro
-	# which stands for all the information, separated by ':'.
-	#
-	# NB: The default format is "[%a]" for postfixed info, "(%a)" otherwise.
-	#
+    my ($package, $filename, $line, $subroutine) = @caller;
 
-	my $display = $self->display;
-	if ($display) {
-		$display =~ s/\$pack(?:age)?\b/$package/g;
-		$display =~ s/\${pack(?:age)?}/$package/g;
-		$display =~ s/\$file(?:name)?\b/$filename/g;
-		$display =~ s/\${file(?:name)?}/$filename/g;
-		$display =~ s/\$line\b/$line/g;
-		$display =~ s/\${line}/$line/g;
-		$display =~ s/\$sub(?:routine)?\b/$subroutine/g;
-		$display =~ s/\${sub(?:routine)?}/$subroutine/g;
-	} else {
-		my @show = map { $caller[$_] } @{$self->indices};
-		my $format = $self->format || ($self->postfix ? "[%a]" : "(%a)");
-		$format = expand_a($format, \@show);	# depends on Perl's version
-		$display = sprintf $format, @show;
-	}
+    #
+    # If there is a display, it takes precedence and is formatted accordingly,
+    # with limited variable substitution. The variables that are recognized
+    # are:
+    #
+    #        $package or $pack        package name of caller
+    #        $filename or $file        filename of caller
+    #        $line                    line number of caller
+    #        $subroutine or $sub        routine name of caller
+    #
+    # We recognize both $line and ${line}, the difference being that the
+    # first needs to be at a word boundary (i.e. $lineage would not result
+    # in any expansion).
+    #
+    # Otherwise, the necessary information is gathered from the caller()
+    # output, and formatted via sprintf, along with the special %a macro
+    # which stands for all the information, separated by ':'.
+    #
+    # NB: The default format is "[%a]" for postfixed info, "(%a)" otherwise.
+    #
 
-	return $display;
+    my $display = $self->display;
+    if ($display) {
+        $display =~ s/\$pack(?:age)?\b/$package/g;
+        $display =~ s/\${pack(?:age)?}/$package/g;
+        $display =~ s/\$file(?:name)?\b/$filename/g;
+        $display =~ s/\${file(?:name)?}/$filename/g;
+        $display =~ s/\$line\b/$line/g;
+        $display =~ s/\${line}/$line/g;
+        $display =~ s/\$sub(?:routine)?\b/$subroutine/g;
+        $display =~ s/\${sub(?:routine)?}/$subroutine/g;
+    } else {
+        my @show = map { $caller[$_] } @{$self->indices};
+        my $format = $self->format || ($self->postfix ? "[%a]" : "(%a)");
+        $format = expand_a($format, \@show);    # depends on Perl's version
+        $display = sprintf $format, @show;
+    }
+
+    return $display;
 }
 
-1;			# for "require"
+1;            # for "require"
 __END__
 
 =head1 NAME
@@ -266,7 +278,7 @@ Specifies a string with minimal variable substitution: only the caller
 information entities specified above, or their abbreviation, will be
 interpolated. For instance:
 
-	-display => '($package::$sub/$line)'
+    -display => '($package::$sub/$line)'
 
 Don't forget to use simple quotes to avoid having Perl interpolate those
 as variables, or escape their leading C<$> sign otherwise. Using this
@@ -292,7 +304,7 @@ by C<-info> and is rendered by a string where values are separated by ":".
 Specifies a list of caller information entities that are to be formated
 using the C<-format> specification. For instance:
 
-	-info => "pack sub line"
+    -info => "pack sub line"
 
 would only report those three entites.
 
@@ -309,9 +321,20 @@ A single space by default.
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
+Raphael Manfredi E<lt>Raphael_Manfredi@pobox.comE<gt> created the module, it
+is currently maintained by Mark Rogaski E<lt>mrogaski@cpan.orgE<gt>.
+
+Thanks to Jeff Boes for uncovering wackiness in caller().
+
+=head1 LICENSE
+
+Copyright (C) 1999 Raphael Manfredi.
+Copyright (C) 2002 Mark Rogaski; all rights reserved.
+
+See L<Log::Agent(3)> or the README file included with the distribution for
+license information.
 
 =head1 SEE ALSO
 

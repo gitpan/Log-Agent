@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: carp_file.t,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: carp_file.t,v 1.1 2002/03/09 16:16:55 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: carp_file.t,v $
+# Revision 1.1  2002/03/09 16:16:55  wendigo
+# New maintainer
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #

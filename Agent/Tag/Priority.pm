@@ -1,5 +1,5 @@
 #
-# $Id: Priority.pm,v 0.2.1.3 2001/04/11 15:52:46 ram Exp $
+# $Id: Priority.pm,v 1.1 2002/03/09 16:10:33 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priority.pm,v $
+# Revision 1.1  2002/03/09 16:10:33  wendigo
+# New maintainer
+#
 # Revision 0.2.1.3  2001/04/11 15:52:46  ram
 # patch8: normalize priority string ("err" -> "error")
 #

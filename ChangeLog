@@ -1,3 +1,16 @@
+Sat Feb 23 03:14:37 EST 2002   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:
+
+        Added Log::Agent::Driver::Fork to allow logconfig() to accept
+        multiple drivers at once.
+
+        Added file permission arguments to Log::Agent::Driver::File and
+        Log::Agent::Channel::File.
+
+        Corrected "uninitialized value" in Log::Agent::Tag::Caller caused
+        by undefined $subroutine.
+
 Wed Apr 11 17:54:44 MEST 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

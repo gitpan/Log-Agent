@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: tag_callback.t,v 0.2.1.2 2001/03/14 23:40:42 ram Exp $
+# $Id: tag_callback.t,v 1.1 2002/03/09 16:16:55 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: tag_callback.t,v $
+# Revision 1.1  2002/03/09 16:16:55  wendigo
+# New maintainer
+#
 # Revision 0.2.1.2  2001/03/14 23:40:42  ram
 # patch5: was wrongly issuing test headers twice when skipping
 #

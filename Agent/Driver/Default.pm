@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.2.1.2 2001/03/31 10:00:53 ram Exp $
+# $Id: Default.pm,v 1.1 2002/03/09 15:54:27 wendigo Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
+# Revision 1.1  2002/03/09 15:54:27  wendigo
+# New maintainer
+#
 # Revision 0.2.1.2  2001/03/31 10:00:53  ram
 # patch7: fixed =over to add explicit indent level
 #
