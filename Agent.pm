@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1.1.3 2000/03/05 22:20:48 ram Exp $
+# $Id: Agent.pm,v 0.1.1.4 2000/03/30 19:24:04 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.4  2000/03/30 19:24:04  ram
+# patch4: updated version number
+#
 # Revision 0.1.1.3  2000/03/05 22:20:48  ram
 # patch3: updated version number
 #
@@ -40,7 +43,7 @@ use AutoLoader 'AUTOLOAD';
 
 require Log::Agent::Message;
 
-$VERSION = '0.103';
+$VERSION = '0.104';
 
 ###
 ### Utilities

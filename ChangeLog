@@ -1,3 +1,9 @@
+Thu Mar 30 21:25:23 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Forgot that /(?<!)/ is a 5.005 feature, fixed Agent/Caller.pm.
+
 Sun Mar  5 23:30:16 MET 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

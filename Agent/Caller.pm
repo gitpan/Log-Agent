@@ -1,5 +1,5 @@
 #
-# $Id: Caller.pm,v 0.1.1.1 2000/03/05 22:21:46 ram Exp $
+# $Id: Caller.pm,v 0.1.1.2 2000/03/30 19:24:55 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Caller.pm,v $
+# Revision 0.1.1.2  2000/03/30 19:24:55  ram
+# patch4: forgot that /(?<!)/ is a 5.005 feature
+#
 # Revision 0.1.1.1  2000/03/05 22:21:46  ram
 # patch3: added missing 1 for require and fixed typo in pod
 #
@@ -96,6 +99,33 @@ sub display		{ $_[0]->{'display'} }
 sub postfix		{ $_[0]->{'postfix'} }
 
 #
+# expand_a
+#
+# Expand the %a macro and return new string.
+#
+if ($] >= 5.005) { eval q{				# if VERSION >= 5.005
+
+# 5.005 and later version grok /(?<!)/
+sub expand_a {
+	my ($str, $aref) = @_;
+	$str =~ s/((?<!%)(?:%%)*)%a/join(':', @$aref)/ge;
+	return $str;
+}
+
+}} else { eval q{						# else /* VERSION < 5.005 */
+
+# pre-5.005 does not grok /(?<!)/
+sub expand_a {
+	my ($str, $aref) = @_;
+	$str =~ s/%%/\01/g;
+	$str =~ s/%a/join(':', @$aref)/ge;
+	$str =~ s/\01/%%/g;
+	return $str;
+}
+
+}}										# endif /* VERSION >= 5.005 */
+
+#
 # ->insert
 #
 # Merge caller string into the log message, according to our configuration.
@@ -147,7 +177,7 @@ sub insert {
 	} else {
 		my @show = map { $caller[$_] } @{$self->indices};
 		my $format = $self->format || ($self->postfix ? "[%a]" : "(%a)");
-		$format =~ s/((?<!%)(?:%%)*)%a/join(':', @show)/ge;
+		$format = expand_a($format, \@show);	# depends on Perl's version
 		$display = sprintf $format, @show;
 	}
 
