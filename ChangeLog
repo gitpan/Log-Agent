@@ -1,3 +1,11 @@
+Mon Sep 30 23:48:20 EDT 2002   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.3
+
+        Removed the problematic t/mail.t test.  The test fails due
+        to problems with redirecting the output of Mail::Mailer in
+        test mode.
+
 Thu Aug  1 23:44:06 EDT 2002   Mark Rogaski <mrogaski@cpan.org>
 
 . Description:  0.3.2
