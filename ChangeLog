@@ -1,3 +1,20 @@
+Tue Jun 20 23:27:14 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Added logcroak(), to die from the perspective of the caller.
+
+	New logwrite() routine for upper-level apps, which unconditionally
+	logs messages to a specified channel.
+
+	Fixed arg processing to avoid dying on 2nd calls to logconfig().
+
+	Fixed typos in debug init and man page.
+
+	Removed logtrc() and logdbg() from the driver interface: they are
+	now frozen in Log::Agent, and implemented in terms of logwrite(),
+	which may be redefined as suited.
+
 Thu Mar 30 21:25:23 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

@@ -1,5 +1,5 @@
 #
-# $Id: Driver.pm,v 0.1.1.1 2000/03/05 22:21:58 ram Exp $
+# $Id: Driver.pm,v 0.1.1.2 2000/06/20 21:23:26 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,11 @@
 #
 # HISTORY
 # $Log: Driver.pm,v $
+# Revision 0.1.1.2  2000/06/20 21:23:26  ram
+# patch5: removed logtrc() and logdbg() from interface
+# patch5: superseded by logwrite(), above routines now frozen
+# patch5: added carpmess() and the penalty attribute
+#
 # Revision 0.1.1.1  2000/03/05 22:21:58  ram
 # patch3: added end marker before pod
 #
@@ -30,9 +35,11 @@ package Log::Agent::Driver;
 # Common attribute acccess, initialized via _init().
 #
 # prefix			the common (static) string info to prepend to messages
+# penalty			the skip Carp penalty to offset to the fixed one
 #
 
 sub prefix		{ $_[0]->{'prefix'} }
+sub penalty		{ $_[0]->{'penalty'} }
 
 #
 # is_deferred
@@ -60,8 +67,9 @@ sub make {
 #
 sub _init {
 	my $self = shift;
-	my ($prefix) = @_;
+	my ($prefix, $penalty) = @_;
 	$self->{'prefix'} = $prefix;		# Prefix info to prepend
+	$self->{'penalty'} = $penalty;		# Carp stack skip penalty
 }
 
 my %level = (
@@ -141,6 +149,39 @@ sub prefix_msg {
 }
 
 #
+# ->carpmess
+#
+# Utility routine for logconfess and logcroak which builds the "die" message
+# by calling the appropriate routine in Carp, and offseting the stack
+# according to our call stack configuration.
+#
+sub carpmess {
+	my $self = shift;
+	my ($str, $fn) = @_;
+
+	#
+	# While confessing, we have basically tell $fn() to skip 2 stack frames:
+	# this call, and our caller chain back to Log::Agent (calls within the
+	# same hierarchy are automatically stripped by Carp).
+	#
+	# To that, we add any additional penalty level, as told us by the creation
+	# routine of each driver, which accounts for extra levels used before
+	# calling us.
+	#
+
+	require Carp;
+
+	my $skip = 2 + $self->penalty;
+	$Carp::CarpLevel += $skip;
+	my $msg = &$fn("$str");			# Need to stringify message object
+	$Carp::CarpLevel -= $skip;
+	chop($msg);						# Remove final "\n" added
+
+	return $msg;
+}
+
+
+#
 # ->logconfess
 #
 # Confess fatal error
@@ -149,11 +190,27 @@ sub prefix_msg {
 sub logconfess {
 	my $self = shift;
 	my ($str) = @_;
+	my $msg = $self->carpmess($str, \&Carp::longmess);
 	$self->emit('error',
 		$self->priority('critical'),
-		$self->prefix_msg($str));
-	require Carp;
-	Carp::confess("$str\n");
+		$self->prefix_msg($msg));
+	die "$msg\n";
+}
+
+#
+# ->logcroak
+#
+# Fatal error, from the perspective of the caller.
+# Error is logged, and then we confess.
+#
+sub logcroak {
+	my $self = shift;
+	my ($str) = @_;
+	my $msg = $self->carpmess($str, \&Carp::shortmess);
+	$self->emit('error',
+		$self->priority('critical'),
+		$self->prefix_msg($msg));
+	die "$msg\n";
 }
 
 #
@@ -211,27 +268,14 @@ sub logsay {
 }
 
 #
-# logtrc
+# logwrite
 #
-# Trace the message
+# Emit the message to the specified channel
 #
-sub logtrc {
+sub logwrite {
 	my $self = shift;
-	my ($prio, $level, $str) = @_;
-	$self->emit('output',
-		$self->map_pri($prio, $level),
-		$self->prefix_msg($str));
-}
-
-#
-# logdbg
-#
-# Emit debug message
-#
-sub logdbg {
-	my $self = shift;
-	my ($prio, $level, $str) = @_;
-	$self->emit('debug',
+	my ($chan, $prio, $level, $str) = @_;
+	$self->emit($chan,
 		$self->map_pri($prio, $level),
 		$self->prefix_msg($str));
 }
@@ -427,14 +471,9 @@ The order is not alphabetical here but by increased level of severity
 
 =over
 
-=item logdbg($priority, $level, $str)
+=item logwrite($channel, $priority, $level, $str)
 
-Log debugging message to the C<debug> channel, at the specified priority/level,
-obtained through a call to map_pri().
-
-=item logtrc($priority, $level, $str)
-
-Log message to the C<output> channel, at the specified priority/level,
+Log message to the given channel, at the specified priority/level,
 obtained through a call to map_pri().
 
 =item logsay($str)
@@ -453,6 +492,12 @@ Log error to the C<error> channel at the C<error> priority.
 
 Log fatal error to the C<error> channel at the C<critical> priority
 and then call die() with "$str\n" as argument.
+
+=item logcroak($str)
+
+Log a fatal error, from the perspective of the caller. The error is logged
+to the C<error> channel at the C<critical> priority and then Carp::croak()
+is called with "$str\n" as argument.
 
 =item logconfess($str)
 

@@ -1,5 +1,5 @@
 #
-# $Id: Silent.pm,v 0.1.1.1 2000/03/05 22:23:29 ram Exp $
+# $Id: Silent.pm,v 0.1.1.2 2000/06/20 21:25:25 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Silent.pm,v $
+# Revision 0.1.1.2  2000/06/20 21:25:25  ram
+# patch5: added empty logwrite() and new logcroak()
+#
 # Revision 0.1.1.1  2000/03/05 22:23:29  ram
 # patch3: added end marker before pod
 #
@@ -52,14 +55,14 @@ sub emit {}
 sub logerr {}
 sub logwarn {}
 sub logsay {}
-sub logtrc {}
-sub logdbg {}
+sub logwrite {}
 
 #
 # Those need minimal processing.
 #
 
-sub logconfess { require Carp; Carp::confess("$_[0]\n"); }
+sub logconfess { require Carp; Carp::confess("$_[0]"); }
+sub logcroak   { require Carp; Carp::croak("$_[0]"); }
 sub logdie     { die "$_[0]\n"; }
 
 1;	# for require

@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.1.1.1 2000/03/05 22:22:02 ram Exp $
+# $Id: Default.pm,v 0.1.1.2 2000/06/20 21:24:27 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
+# Revision 0.1.1.2  2000/06/20 21:24:27  ram
+# patch5: logconfess() and logcroak() now use ->carpmess
+#
 # Revision 0.1.1.1  2000/03/05 22:22:02  ram
 # patch3: added end marker before pod
 #
@@ -35,7 +38,7 @@ use vars qw(@ISA);
 sub make {
 	my $self = bless {}, shift;
 	my ($prefix) = @_;
-	$self->_init($prefix);
+	$self->_init($prefix, 0);					# 0 is the skip Carp penalty
 	my $orig = select(main::STDOUT); $| = 1;	# Autoflush
 	select(main::STDERR); $| = 1;
 	select($orig);
@@ -76,7 +79,21 @@ sub logconfess {
 	my $self = shift;
 	my ($str) = @_;
 	require Carp;
-	Carp::confess($self->prefix_msg("$str\n"));
+	my $msg = $self->carpmess($str, \&Carp::longmess);
+	die $self->prefix_msg("$msg\n");
+}
+
+#
+# ->logcroak		-- redefined
+#
+# Fatal error, from perspective of caller
+#
+sub logcroak {
+	my $self = shift;
+	my ($str) = @_;
+	require Carp;
+	my $msg = $self->carpmess($str, \&Carp::shortmess);
+	die $self->prefix_msg("$msg\n");
 }
 
 #

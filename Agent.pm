@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1.1.4 2000/03/30 19:24:04 ram Exp $
+# $Id: Agent.pm,v 0.1.1.5 2000/06/20 21:21:45 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,12 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.5  2000/06/20 21:21:45  ram
+# patch5: added logcroak()
+# patch5: new logwrite() routine for upper-level apps
+# patch5: fixed arg processing to avoid dying on 2nd calls to logconfig()
+# patch5: fixed typos in debug init and man page
+#
 # Revision 0.1.1.4  2000/03/30 19:24:04  ram
 # patch4: updated version number
 #
@@ -34,16 +40,20 @@ package Log::Agent;
 
 use vars qw($VERSION $Driver $Prefix $Trace $Debug $Confess $Caller);
 use AutoLoader 'AUTOLOAD';
+use vars qw(@ISA @EXPORT @EXPORT_OK);
 
-@Log::Agent::ISA = qw(Exporter);
-@Log::Agent::EXPORT = qw(
+@ISA = qw(Exporter);
+@EXPORT = qw(
 	logconfig
-	logconfess logsay logerr logwarn logdie logtrc logdbg
+	logconfess logcroak logsay logerr logwarn logdie logtrc logdbg
+);
+@EXPORT_OK = qw(
+	logwrite
 );
 
 require Log::Agent::Message;
 
-$VERSION = '0.104';
+$VERSION = '0.105';
 
 ###
 ### Utilities
@@ -149,7 +159,7 @@ __END__
 # logconfig
 #
 # Configure the logging system at the application level. By default, logging
-# uses the Log::Agent::Default driver.
+# uses the Log::Agent::Driver::Default driver.
 #
 # Available options (case insensitive):
 #
@@ -185,6 +195,7 @@ sub logconfig {
 		}
 		if		(ref $vset eq 'SCALAR')		{ $$vset = $val }
 		elsif	(ref $vset eq 'ARRAY')		{ map { $$_ = $val } @$vset }
+		elsif	(ref $vset eq 'REF')		{ $$vset = $val }
 		else								{ die "bug in logconfig" }
 	}
 
@@ -195,12 +206,22 @@ sub logconfig {
 
 	$Prefix = $Driver->prefix;
 	$Trace = level_from_prio($Trace) if defined $Trace && $Trace =~ /^\D+/;
-	$Debug = level_from_prio($Debug) if defined $Trace && $Trace =~ /^\D+/;
+	$Debug = level_from_prio($Debug) if defined $Debug && $Debug =~ /^\D+/;
 
 	if (defined $calldef) {
 		require Log::Agent::Caller;
 		$Caller = Log::Agent::Caller->make(-offset => 2, @{$calldef});
 	};
+}
+
+#
+# inited
+#
+# Returns whether Log::Agent was inited.
+# NOT exported, must be called as Log::Agent::inited().
+#
+sub inited {
+	return ref $Driver ? 1 : 0;
 }
 
 #
@@ -226,13 +247,27 @@ sub logconfess {
 }
 
 #
+# logcroak
+#
+# Fatal error, from the perspective of our caller
+# Error is logged, and then we die.
+#
+sub logcroak {
+	goto &logconfess if $Confess;		# Redirected when -confess
+	my $str = format_args(@_);
+	&log_default;
+	$Driver->logcroak($str);
+	bug("back from logcroak in driver $Driver\n");
+}
+
+#
 # logdie
 #
 # Fatal error
 # Error is logged, and then we die.
 #
 sub logdie {
-	return &logconfess if $Confess;		# Redirected when -confess
+	goto &logconfess if $Confess;		# Redirected when -confess
 	my $str = format_args(@_);
 	&log_default;
 	$Driver->logdie($str);
@@ -273,7 +308,7 @@ sub logsay {
 }
 
 #
-# logtrc
+# logtrc		-- frozen
 #
 # Trace the message if trace level is set high enough.
 # Trace level must either be a single digit or "priority" or "priority:digit".
@@ -281,13 +316,13 @@ sub logsay {
 sub logtrc {
 	my ($id, @args) = @_;
 	my ($prio, $level) = priority($id);
-	return if $level > $Trace;
+	return if !defined($Trace) || $level > $Trace;
 	my $str = format_args(@args);
-	$Driver->logtrc($prio, $level, $str);
+	$Driver->logwrite('output', $prio, $level, $str);
 }
 
 #
-# logdbg
+# logdbg		-- frozen
 #
 # Emit debug message if debug level is set high enough.
 # Debug level must either be a single digit or "priority" or "priority:digit".
@@ -295,14 +330,27 @@ sub logtrc {
 sub logdbg {
 	my ($id, @args) = @_;
 	my ($prio, $level) = priority($id);
-	return if $level > $Debug;
+	return if !defined($Debug) || $level > $Debug;
 	my $str = format_args(@args);
-	$Driver->logdbg($prio, $level, $str);
+	$Driver->logwrite('debug', $prio, $level, $str);
 }
 
 ###
 ### Utilities
 ###
+
+#
+# logwrite		-- not exported by default
+#
+# Write message to the specified channel, at the given priority.
+# This routine is used by both logtrc() and logdbg() and may be redefined.
+#
+sub logwrite {
+	my ($channel, $id, @args) = @_;
+	my ($prio, $level) = priority($id);
+	my $str = format_args(@args);
+	$Driver->logwrite($channel, $prio, $level, $str);
+}
 
 #
 # priority
@@ -343,10 +391,10 @@ Log::Agent - logging agent
  use Log::Agent;            # in application's main
  logconfig(-prefix => $0);  # simplest, uses default driver
 
- use Log::Agent;            # another more complex example
- require Log::Agent::File;  # logging made to file
+ use Log::Agent;                    # another more complex example
+ require Log::Agent::Driver::File;  # logging made to file
  logconfig(-driver =>
-     Log::Agent::File->make(
+     Log::Agent::Driver::File->make(
          -prefix      => $0,
          -showpid     => 1,
          -channels    => {
@@ -416,8 +464,8 @@ and logdbg() routines, respectively.
 The Log::Agent class defines three logging channels, which are C<error>,
 C<output> and C<debug>. Depending on the driver used for logging, those
 channels are ignored (typically with syslog()) or may be implicitely defined
-(default logging, i.e. the one achieved by the Log::Agent::Default driver,
-remaps C<error> to stderr, C<output> and C<debug> to stdout).
+(default logging, i.e. the one achieved by the Log::Agent::Driver::Default
+driver, remaps C<error> to stderr, C<output> and C<debug> to stdout).
 
 =head1 INTERFACE
 
@@ -493,6 +541,32 @@ Same as logdie(), but issues a Carp::confess(3) call instead.
 It is possible to configure the Log::Agent module via the C<-confess> switch
 to automatically redirect a logdie() to logconfess(), which is invaluable
 during unit testing.
+
+=item logcroak I<message>
+
+Same as logdie(), but issues a Carp::croak(3) call instead.
+It is possible to configure the Log::Agent module via the C<-confess> switch
+to automatically redirect a logcroak() to logconfess(), which is invaluable
+during unit testing.
+
+=item Log::Agent::inited
+
+Returns true when C<Log::Agent> was initialized, either explicitely via
+a logconfig() or implicitely via any logxxx() call.
+
+=back
+
+For applications that may wish to implement a debug layer on top of Log::Agent,
+the following routine is provided.  Note that it is not imported by default,
+i.e. it needs to be explicitely mentionned at C<use> time, since it is not
+meant to be used directly under regular usage.
+
+=over
+
+=item logwrite I<channel>, I<priority>, I<message>
+
+Unconditionally write the I<message> at the given I<priority> on I<channel>.
+The channel can be one of C<debug>, C<error> or C<output>.
 
 =back
 
@@ -577,8 +651,15 @@ fix as one might think of at first glance.
 
 Some drivers lack customization and hardwire a few things that come from
 my personal taste, like the prefixing done when I<duperr> is set in
-Log::Agent::File, or the fact that the C<debug> and C<output> channels
-are merged as one in the Log::Agent::Default driver.
+Log::Agent::Driver::File, or the fact that the C<debug> and C<output> channels
+are merged as one in the Log::Agent::Driver::Default driver.
+
+=item *
+
+When using logcroak() or logconfess(), the place where the call was made
+can still be visible when -caller is used, since the addition of the
+caller information to the message is done before calling the logging driver.
+Is this a problem?
 
 =back
 

@@ -1,5 +1,5 @@
 #
-# $Id: Syslog.pm,v 0.1.1.1 2000/03/05 22:23:32 ram Exp $
+# $Id: Syslog.pm,v 0.1.1.2 2000/06/20 21:25:44 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Syslog.pm,v $
+# Revision 0.1.1.2  2000/06/20 21:25:44  ram
+# patch5: changed _init() signature to add stack trace penalty
+#
 # Revision 0.1.1.1  2000/03/05 22:23:32  ram
 # patch3: added end marker before pod
 #
@@ -67,7 +70,7 @@ sub make {
 	$self->{'logopt'} =~ s/\bpid\b//g;			# Must use showpid => 1
 	$self->{'logopt'} .= ' pid' if $self->showpid;
 
-	$self->_init($prefix);
+	$self->_init($prefix, 0);					# 0 is the skip Carp penalty
 	return $self;
 }
 

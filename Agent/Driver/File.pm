@@ -1,5 +1,5 @@
 #
-# $Id: File.pm,v 0.1.1.1 2000/03/05 22:23:22 ram Exp $
+# $Id: File.pm,v 0.1.1.2 2000/06/20 21:25:01 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: File.pm,v $
+# Revision 0.1.1.2  2000/06/20 21:25:01  ram
+# patch5: added logcroak()
+#
 # Revision 0.1.1.1  2000/03/05 22:23:22  ram
 # patch3: added end marker before pod
 # patch3: no longer uses IO::Handle but relies on Log::Agent::File
@@ -105,7 +108,8 @@ sub make {
 	$self->{'stampfmt'} = $self->stamping_fn($self->stampfmt)
 		unless ref $self->stampfmt eq 'CODE';
 
-	$self->_init($prefix);
+	$self->_init($prefix, 0);		# 0 is the skip Carp penalty for confess
+
 	$self->{'channels'} = {} unless $self->channels;	# No defined channel
 	$self->{'channel_fds'} = {};						# No opened files
 	$self->{'opath'} = {};								# Idem
@@ -325,7 +329,20 @@ sub logconfess {
 	my $self = shift;
 	my ($str) = @_;
 	$self->emit_output('critical', "FATAL", $str) if $self->duperr;
-	$self->SUPER::logconfess($str);
+	$self->SUPER::logconfess($str);		# Carp strips calls within hierarchy
+}
+
+#
+# ->logcroak
+#
+# When `duperr' is true, emit message on the 'output' channel prefixed
+# with FATAL.
+#
+sub logcroak {
+	my $self = shift;
+	my ($str) = @_;
+	$self->emit_output('critical', "FATAL", $str) if $self->duperr;
+	$self->SUPER::logcroak($str);		# Carp strips calls within hierarchy
 }
 
 #
@@ -450,8 +467,12 @@ See L<Log::Agent::Rotate> for more details.
 
 When true, all messages normally sent to the C<error> channel are also
 copied to the C<output> channel with a prefixing made to clearly mark
-them as such: "FATAL: " for logdie() and logconfess(), "ERROR: " for logerr()
-and "WARNING: " for logwarn().
+them as such: "FATAL: " for logdie(), logcroak() and logconfess(),
+"ERROR: " for logerr() and "WARNING: " for logwarn().
+
+Note that the "duplicate" is the original error string for logconfess()
+and logcroak(), and is not strictly identical to the message that will be
+logged to the C<error> channel.  This is a an accidental feature.
 
 Default is false.
 
