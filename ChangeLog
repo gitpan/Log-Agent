@@ -1,3 +1,11 @@
+Tue Mar 13 20:15:37 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Fixed typo in -priority documentation.
+
+	Manual page for Log::Agent::Tag::Priority was irrelevant.
+
 Tue Mar 13 19:52:02 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

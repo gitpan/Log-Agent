@@ -1,5 +1,5 @@
 #
-# $Id: Priority.pm,v 0.2.1.1 2001/03/13 18:45:20 ram Exp $
+# $Id: Priority.pm,v 0.2.1.2 2001/03/13 19:15:17 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priority.pm,v $
+# Revision 0.2.1.2  2001/03/13 19:15:17  ram
+# patch4: manual page was irrelevant
+#
 # Revision 0.2.1.1  2001/03/13 18:45:20  ram
 # patch2: created
 #
@@ -117,25 +120,57 @@ This class represents a log priority tag string.
 
 The following parameters are defined, in alphabetical order:
 
-=over
+=over 4
 
-=item C<-name> => I<name>
+=item C<-display> => I<string>
 
-The name of this tag.  Currently unused.
+Specifies the priority/level string to display, with minimal variable
+substitution.  For instance:
+
+ -display => '[$priority/$level]'
+
+The defined variables are documented in the B<DISPLAY VARIABLES> section
+underneath.
+
+=item C<-level> => I<level>
+
+This parameter is internally added by C<Log::Agent> when computing the
+priority tag, since only it knows the level of the current messsage.
 
 =item C<-postfix> => I<flag>
 
 Whether tag should be placed after or before the log message.
 By default, it is prepended to the log message, i.e. this parameter is false.
 
+=item C<-priority> => I<prio>
+
+This parameter is internally added by C<Log::Agent> when computing the
+priority tag, since only it knows the priority of the current messsage.
+
 =item C<-separator> => I<string>
 
 The separation string between the tag and the log message.
 A single space by default.
 
-=item C<-value> => I<string>
+=back
 
-The tag's value.
+=head1 DISPLAY VARIABLES
+
+The C<-display> switch understands a few variables that can be substituted
+in the supplied string.  Both $var and C<${var}> forms are supported.
+Unknown variables are left untouched.
+
+=over 4
+
+=item C<$priority>
+
+The full priority name of the logged message, e.g. "warning" or "error".
+
+=item C<$level>
+
+The associated priority level of the logged message, a number.  For instance,
+the level associated to "warning" is C<4>.  See L<Log::Agent::Priorities>
+for the default name -> level mapping.
 
 =back
 
@@ -145,7 +180,7 @@ Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
 
 =head1 SEE ALSO
 
-Log::Agent::Tag(3), Log::Agent::Message(3).
+Log::Agent::Tag(3), Log::Agent::Message(3), Log::Agent::Priorities(3).
 
 =cut
 

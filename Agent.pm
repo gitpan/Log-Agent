@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.2.1.2 2001/03/13 18:44:35 ram Exp $
+# $Id: Agent.pm,v 0.2.1.3 2001/03/13 19:14:38 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.2.1.3  2001/03/13 19:14:38  ram
+# patch4: fixed typo in -priority documentation
+#
 # Revision 0.2.1.2  2001/03/13 18:44:35  ram
 # patch2: added the -priority and -tags options to logconfig()
 #
@@ -45,7 +48,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.203';
+$VERSION = '0.204';
 
 $Trace = NOTICE;	# Default tracing
 
@@ -707,7 +710,7 @@ creation routine of Log::Agent::Tag::Priority(3) and are documented there.
 
 I usually say something like:
 
-	-caller => [ -display => '[$priority]' ]
+	-priority => [ -display => '[$priority]' ]
 
 which will display the whole priority name at the beginning of the messages,
 e.g. "[warning]" for a logwarn() or "[error]" for logerr().
