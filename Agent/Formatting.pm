@@ -1,19 +1,26 @@
 ###########################################################################
-# $Id: Formatting.pm,v 1.3 2003/03/08 16:40:27 wendigo Exp $
+# $Id: Formatting.pm,v 1.5 2003/09/27 18:11:16 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent::Formatting
 #
-# RCS Revision: $Revision: 1.3 $
-# Date: $Date: 2003/03/08 16:40:27 $
+# RCS Revision: $Revision: 1.5 $
+# Date: $Date: 2003/09/27 18:11:16 $
 #
 # Copyright (c) 1999 Raphael Manfredi
-# Copyright (c) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+# Copyright (c) 2002-2003 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
 #
 # See the README file included with the
 # distribution for license information.
 #
 # $Log: Formatting.pm,v $
+# Revision 1.5  2003/09/27 18:11:16  wendigo
+# Modified comments.
+#
+# Revision 1.4  2003/09/27 17:41:41  wendigo
+# Modified to use $Log::Agent::OS_Error for substitution of %m instead
+# of $!.
+#
 # Revision 1.3  2003/03/08 16:40:27  wendigo
 # Merged format and multiline carp changes
 #
@@ -61,7 +68,7 @@ if ($] >= 5.005) {
         # 5.005 and later version grok /(?<!)/
         sub adjust_fmt {
             my $fmt = shift;
-            $fmt =~ s/((?<!%)(?:%%)*)%m/$!/g;
+            $fmt =~ s/((?<!%)(?:%%)*)%m/$Log::Agent::OS_Error/g;
             return $fmt;
         }
     }
@@ -71,7 +78,7 @@ if ($] >= 5.005) {
         sub adjust_fmt {
             my $fmt = shift;
             $fmt =~ s/%%/\01/g;
-            $fmt =~ s/%m/$!/g;
+            $fmt =~ s/%m/$Log::Agent::OS_Error/g;
             $fmt =~ s/\01/%%/g;
             return $fmt;
         }

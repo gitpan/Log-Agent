@@ -1,3 +1,13 @@
+Sat Sep 27 13:56:58 EDT 2003   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.5
+
+        Added a wrapper for &AutoLoader::AUTOLOAD to save the value
+        of $!, which is often clobbered before the substitution of
+        "%m" by logxxx().
+
+        Added a META.yml file and disabled autogeneration in Makefile.PL.
+
 Sat Mar  8 11:43:41 EST 2003   Mark Rogaski <mrogaski@cpan.org>
 
 . Description:  0.3.4

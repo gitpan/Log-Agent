@@ -1,12 +1,12 @@
 #!./perl
 ###########################################################################
-# $Id: carp_multiline.t,v 1.1.4.1 2003/03/08 16:40:27 wendigo Exp $
+# $Id: carp_multiline.t,v 1.2 2003/09/27 15:19:47 wendigo Exp $
 ###########################################################################
 #
 # format.t
 #
-# RCS Revision: $Revision: 1.1.4.1 $
-# Date: $Date: 2003/03/08 16:40:27 $
+# RCS Revision: $Revision: 1.2 $
+# Date: $Date: 2003/09/27 15:19:47 $
 #
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
 #
@@ -14,8 +14,8 @@
 # distribution for license information.
 #
 # $Log: carp_multiline.t,v $
-# Revision 1.1.4.1  2003/03/08 16:40:27  wendigo
-# Merged format and multiline carp changes
+# Revision 1.2  2003/09/27 15:19:47  wendigo
+# Tests for multi-line error messages.
 #
 # Revision 1.1.2.2  2003/03/08 16:18:01  wendigo
 # *** empty log message ***

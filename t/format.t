@@ -1,12 +1,12 @@
 #!./perl
 ###########################################################################
-# $Id: format.t,v 1.1.4.1 2003/03/08 16:40:27 wendigo Exp $
+# $Id: format.t,v 1.3 2003/09/27 15:27:00 wendigo Exp $
 ###########################################################################
 #
 # format.t
 #
-# RCS Revision: $Revision: 1.1.4.1 $
-# Date: $Date: 2003/03/08 16:40:27 $
+# RCS Revision: $Revision: 1.3 $
+# Date: $Date: 2003/09/27 15:27:00 $
 #
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
 #
@@ -14,8 +14,12 @@
 # distribution for license information.
 #
 # $Log: format.t,v $
-# Revision 1.1.4.1  2003/03/08 16:40:27  wendigo
-# Merged format and multiline carp changes
+# Revision 1.3  2003/09/27 15:27:00  wendigo
+# Saved $! before testing %m since perl-5.8.1 seems to modify $! during
+# a call to logerr().
+#
+# Revision 1.2  2003/09/27 15:19:24  wendigo
+# Tests for sprintf-like formatting.
 #
 # Revision 1.1.2.2  2003/03/08 16:18:01  wendigo
 # *** empty log message ***
@@ -32,8 +36,9 @@ use Log::Agent;
 BEGIN { plan tests => 4 }
 
 open(FOO, "t/frank");
+my $errstr = $!;
 eval { logdie "error: %m" };
-ok($@ =~ /Error: $!/i);
+ok($@ =~ /Error: $errstr/i);
 
 eval { logdie "100%% pure, %s lard", "snowy" };
 ok($@ =~ /100\% pure, snowy lard/);

@@ -1,19 +1,29 @@
 ###########################################################################
-# $Id: Agent.pm,v 1.3 2002/04/26 03:12:56 wendigo Exp $
+# $Id: Agent.pm,v 1.6 2003/09/27 18:11:13 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent
 #
-# RCS Revision: $Revision: 1.3 $
-# Date: $Date: 2002/04/26 03:12:56 $
+# RCS Revision: $Revision: 1.6 $
+# Date: $Date: 2003/09/27 18:11:13 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+# Copyright (C) 2002-2003 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
 #
 # See the README file included with the
 # distribution for license information.
 #
 # $Log: Agent.pm,v $
+# Revision 1.6  2003/09/27 18:11:13  wendigo
+# Modified comments.
+#
+# Revision 1.5  2003/09/27 17:54:17  wendigo
+# Fixed an simple CVS substitution problem.
+#
+# Revision 1.4  2003/09/27 17:40:40  wendigo
+# Added wrapper for AUTOLOAD to stash $! away in $Log::Agent::OS_Error
+# so it doesn't get clobbered during the execution of &AutoLoader::AUTOLOAD.
+#
 # Revision 1.3  2002/04/26 03:12:56  wendigo
 # *** empty log message ***
 #
@@ -51,9 +61,9 @@ require Exporter;
 package Log::Agent;
 
 use vars qw($VERSION $Driver $Prefix $Trace $Debug $Confess
-	$Caller $Priorities $Tags $DATUM %prio_cache);
+	$OS_Error $AUTOLOAD $Caller $Priorities $Tags $DATUM %prio_cache);
 
-use AutoLoader 'AUTOLOAD';
+use AutoLoader;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 @ISA = qw(Exporter);
@@ -69,9 +79,17 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = sprintf "%d.%01d%02d%s", (split /[^0-9p]+/, '$Name: rel_0_3_4 $')[1..4];
+$VERSION = '0.305';
 
 $Trace = NOTICE;	# Default tracing
+$OS_Error = '';         # Data stash for the $! value
+
+sub AUTOLOAD {
+    ${Log::Agent::OS_Error} = $!;       # for safe-keeping, the braces
+                                        # prevent CVS substitution
+    $AutoLoader::AUTOLOAD = $AUTOLOAD;
+    goto &AutoLoader::AUTOLOAD;
+}
 
 1;
 __END__

@@ -45,3 +45,4 @@ t/format.t                       Test the sprintf compatibility of logxxx()
 t/priority.t                     Test -priority setting in logconfig()
 t/tag_callback.t                 Test log message tag via callback
 t/tag_string.t                   Test log message tag via string
+META.yml                         Module meta-data
