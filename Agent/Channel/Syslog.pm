@@ -1,5 +1,5 @@
 #
-# $Id: Syslog.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Syslog.pm,v 0.2.1.1 2001/03/14 23:40:18 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Syslog.pm,v $
+# Revision 0.2.1.1  2001/03/14 23:40:18  ram
+# patch5: forgot to handle -prefix
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -41,10 +44,9 @@ use Sys::Syslog qw(:DEFAULT setlogsock);
 sub make {
 	my $self = bless {}, shift;
 	my (%args) = @_;
-	my $prefix;
 
 	my %set = (
-		-prefix		=> \$prefix,				# Handled by parent via _init
+		-prefix		=> \$self->{'prefix'},
 		-facility	=> \$self->{'facility'},
 		-showpid	=> \$self->{'showpid'},
 		-socktype	=> \$self->{'socktype'},
@@ -70,6 +72,7 @@ sub make {
 # Attribute access
 #
 
+sub prefix		{ $_[0]->{'prefix'} }
 sub facility	{ $_[0]->{'facility'} || 'user' }
 sub showpid		{ $_[0]->{'showpid'} }
 sub socktype	{ $_[0]->{'socktype'} }

@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: tag_callback.t,v 0.2.1.1 2001/03/13 18:48:52 ram Exp $
+# $Id: tag_callback.t,v 0.2.1.2 2001/03/14 23:40:42 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: tag_callback.t,v $
+# Revision 0.2.1.2  2001/03/14 23:40:42  ram
+# patch5: was wrongly issuing test headers twice when skipping
+#
 # Revision 0.2.1.1  2001/03/13 18:48:52  ram
 # patch2: created
 #
@@ -19,8 +22,6 @@
 # $EndLog$
 #
 
-print "1..2\n";
-
 require 't/code.pl';
 sub ok;
 
@@ -29,6 +30,7 @@ if ($@) {
 	print "1..0\n";
 	exit 0;
 }
+print "1..2\n";
 
 use Log::Agent;
 require Log::Agent::Driver::File;

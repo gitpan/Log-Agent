@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.2.1.3 2001/03/13 19:14:38 ram Exp $
+# $Id: Agent.pm,v 0.2.1.4 2001/03/14 23:42:12 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.2.1.4  2001/03/14 23:42:12  ram
+# patch6: updated version number
+#
 # Revision 0.2.1.3  2001/03/13 19:14:38  ram
 # patch4: fixed typo in -priority documentation
 #
@@ -48,7 +51,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.204';
+$VERSION = '0.206';
 
 $Trace = NOTICE;	# Default tracing
 
