@@ -1,3 +1,12 @@
+Wed Dec  8 22:53:27 MET 1999   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Forgot that /(?<!)/ is a 5.005 feature, fixed Agent.pm.
+
+	Mentions that perl 5.005 fails tests on Linux due to a perl or
+	glibc bug. It's only the test code that fails though.
+
 Tue Dec  7 22:01:49 MET 1999  Raphael Manfredi <Raphael_Manfredi@pobox.com>
 . Description
 

@@ -113,5 +113,14 @@ The available calls are:
 Please read the Log::Agent(3) manpage and the related pages for more
 information.
 
+BUGS
+
+Expect failure of tests 6 and 10 for t/default on Linux platforms
+with perl 5.005.
+
+This is a perl or glibc bug, it's hard to tell which. Since it only
+happens on Linux with glibc, I'm tempted to call it a glibc bug, but
+that does not prove anything.
+
 -- Raphael Manfredi <Raphael_Manfredi@pobox.com>
 

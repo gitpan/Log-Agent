@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1 1999/12/07 21:09:44 ram Exp $
+# $Id: Agent.pm,v 0.1.1.1 1999/12/08 21:51:38 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.1  1999/12/08 21:51:38  ram
+# patch1: forgot that /(?<!)/ is a 5.005 feature
+#
 # Revision 0.1  1999/12/07 21:09:44  ram
 # Baseline for first alpha release.
 #
@@ -262,7 +265,13 @@ sub logdbg {
 #
 sub format_args {
 	my $fmt = shift;
-	$fmt =~ s/((?<!%)(?:%%)*)%m/$!/g;
+	if ($] >= 5.005) {
+		$fmt =~ s/((?<!%)(?:%%)*)%m/$!/g;
+	} else {
+		$fmt =~ s/%%/\01/g;
+		$fmt =~ s/%m/$!/g;
+		$fmt =~ s/\01/%%/g;
+	}
 	my $str = Log::Agent::Message->make(@_ ? sprintf($fmt, @_) : $fmt);
 	$Caller->insert($str) if $Caller;
 	return $str;
