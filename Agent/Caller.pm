@@ -1,5 +1,5 @@
 #
-# $Id: Caller.pm,v 0.1 1999/12/07 21:09:44 ram Exp $
+# $Id: Caller.pm,v 0.1.1.1 2000/03/05 22:21:46 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Caller.pm,v $
+# Revision 0.1.1.1  2000/03/05 22:21:46  ram
+# patch3: added missing 1 for require and fixed typo in pod
+#
 # Revision 0.1  1999/12/07 21:09:44  ram
 # Baseline for first alpha release.
 #
@@ -161,6 +164,9 @@ sub insert {
 	return $str;
 }
 
+1;			# for "require"
+__END__
+
 =head1 NAME
 
 Log::Agent::Caller - formats caller information
@@ -230,7 +236,7 @@ as variables, or escape their leading C<$> sign otherwise. Using this
 convention was deemed to more readable (and natural in Perl)
 than SGML entities such as "&pack;".
 
-Using this switch supersedes the C<-info> and <-format> switches.
+Using this switch supersedes the C<-info> and C<-format> switches.
 
 =item C<-format> => I<printf format>
 
@@ -271,4 +277,5 @@ Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
 
 Log::Agent(3), Log::Agent::Message(3).
 
-1;
+=cut
+

@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.1 1999/12/07 21:09:44 ram Exp $
+# $Id: Default.pm,v 0.1.1.1 2000/03/05 22:22:02 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
+# Revision 0.1.1.1  2000/03/05 22:22:02  ram
+# patch3: added end marker before pod
+#
 # Revision 0.1  1999/12/07 21:09:44  ram
 # Baseline for first alpha release.
 #
@@ -111,6 +114,7 @@ sub logwarn {
 }
 
 1;	# for require
+__END__
 
 =head1 NAME
 

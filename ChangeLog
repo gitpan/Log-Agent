@@ -1,3 +1,24 @@
+Sun Mar  5 23:30:16 MET 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Added missing 1 for require and fixed typo in pod for
+	Log::Agent::Caller as was reported by many people.
+
+	All .pm files now have an __END__ marker before the pod
+	section anyway, so that the Perl parser stops.
+
+	Added support for logfile rotation via Log::Agent::Rotate.
+
+	No longer uses IO::Handle but relies on the new
+	Log::Agent::File hierarch, to support logfile rotation.
+	Native Perl files are now handled via Log::Agent::File::Native.
+
+	Suppressed blurb about the Linux bug since we workaround it by
+	creating a new separate default_exp.t test.
+
+	Three new files.
+
 Thu Dec  9 18:31:30 MET 1999   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

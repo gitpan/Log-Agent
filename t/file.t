@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: file.t,v 0.1 1999/12/07 21:09:45 ram Exp $
+# $Id: file.t,v 0.1.1.1 2000/03/05 22:25:25 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,6 +10,9 @@
 #
 # HISTORY
 # $Log: file.t,v $
+# Revision 0.1.1.1  2000/03/05 22:25:25  ram
+# patch3: rewritten to use the new ok() routine
+#
 # Revision 0.1  1999/12/07 21:09:45  ram
 # Baseline for first alpha release.
 #
@@ -19,6 +22,7 @@
 print "1..26\n";
 
 require 't/code.pl';
+sub ok;
 
 use Log::Agent;
 require Log::Agent::Driver::File;
@@ -38,14 +42,10 @@ logsay "message";
 close STDOUT;
 close STDERR;
 
-print "not " unless contains("t/file.err", '\d Error$');
-print "ok 1\n";
-print "not " if contains("t/file.out", 'Error');
-print "ok 2\n";
-print "not " unless contains("t/file.err", '\d Message$');
-print "ok 3\n";
-print "not " if contains("t/file.out", 'Message');
-print "ok 4\n";
+ok 1, contains("t/file.err", '\d Error$');
+ok 2, !contains("t/file.out", 'Error');
+ok 3, contains("t/file.err", '\d Message$');
+ok 4, !contains("t/file.out", 'Message');
 
 undef $Log::Agent::Driver;		# Cheat
 
@@ -66,25 +66,16 @@ logsay "message";
 logwarn "warning";
 eval { logdie "die" };
 
-print "not " unless $@;
-print "ok 5\n";
+ok 5, $@;
 
-print "not " unless contains("t/file.err", '^DATE me\[\d+\]: error$');
-print "ok 6\n";
-print "not " unless contains("t/file.out", 'ERROR: error');
-print "ok 7\n";
-print "not " unless contains("t/file.out", '^DATE me\[\d+\]: message$');
-print "ok 8\n";
-print "not " if contains("t/file.err", 'message');
-print "ok 9\n";
-print "not " unless contains("t/file.err", '^DATE me\[\d+\]: warning$');
-print "ok 10\n";
-print "not " unless contains("t/file.out", 'WARNING: warning');
-print "ok 11\n";
-print "not " unless contains("t/file.err", '^DATE me\[\d+\]: die$');
-print "ok 12\n";
-print "not " unless contains("t/file.out", 'FATAL: die');
-print "ok 13\n";
+ok 6, contains("t/file.err", '^DATE me\[\d+\]: error$');
+ok 7, contains("t/file.out", 'ERROR: error');
+ok 8, contains("t/file.out", '^DATE me\[\d+\]: message$');
+ok 9, !contains("t/file.err", 'message');
+ok 10, contains("t/file.err", '^DATE me\[\d+\]: warning$');
+ok 11, contains("t/file.out", 'WARNING: warning');
+ok 12, contains("t/file.err", '^DATE me\[\d+\]: die$');
+ok 13, contains("t/file.out", 'FATAL: die');
 
 unlink 't/file.out', 't/file.err';
 
@@ -105,25 +96,16 @@ logsay "message";
 logwarn "warning";
 eval { logdie "die" };
 
-print "not " unless $@;
-print "ok 14\n";
+ok 14, $@;
 
-print "not " unless contains("t/file.err", '^DATE me: error$');
-print "ok 15\n";
-print "not " if contains("t/file.out", 'error');
-print "ok 16\n";
-print "not " unless contains("t/file.out", '^DATE me: message$');
-print "ok 17\n";
-print "not " if contains("t/file.err", 'message');
-print "ok 18\n";
-print "not " unless contains("t/file.err", '^DATE me: warning$');
-print "ok 19\n";
-print "not " if contains("t/file.out", 'warning');
-print "ok 20\n";
-print "not " unless contains("t/file.err", '^DATE me: die$');
-print "ok 21\n";
-print "not " if contains("t/file.out", 'die');
-print "ok 22\n";
+ok 15, contains("t/file.err", '^DATE me: error$');
+ok 16, !contains("t/file.out", 'error');
+ok 17, contains("t/file.out", '^DATE me: message$');
+ok 18, !contains("t/file.err", 'message');
+ok 19, contains("t/file.err", '^DATE me: warning$');
+ok 20, !contains("t/file.out", 'warning');
+ok 21, contains("t/file.err", '^DATE me: die$');
+ok 22, !contains("t/file.out", 'die');
 
 unlink 't/file.out', 't/file.err';
 
@@ -144,13 +126,10 @@ logsay "should go to error";
 
 close FILE;
 
-print "not " if -e '>&main::FILE';
-print "ok 23\n";
-print "not " unless -e 't/file.err';
-print "ok 24\n";
-print "not " unless contains("t/file.err", 'me: error$');
-print "ok 25\n";
-print "not " unless contains("t/file.err", 'me: should go to');
-print "ok 26\n";
+ok 23, !-e '>&main::FILE';
+ok 24, -e 't/file.err';
+ok 25, contains("t/file.err", 'me: error$');
+ok 26, contains("t/file.err", 'me: should go to');
 
 unlink 't/file.err';
+

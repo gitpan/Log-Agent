@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1.1.2 1999/12/09 17:30:40 ram Exp $
+# $Id: Agent.pm,v 0.1.1.3 2000/03/05 22:20:48 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.3  2000/03/05 22:20:48  ram
+# patch3: updated version number
+#
 # Revision 0.1.1.2  1999/12/09 17:30:40  ram
 # patch2: wrote two versions of format_args and eval proper one
 #
@@ -37,7 +40,7 @@ use AutoLoader 'AUTOLOAD';
 
 require Log::Agent::Message;
 
-$VERSION = '0.102';
+$VERSION = '0.103';
 
 ###
 ### Utilities

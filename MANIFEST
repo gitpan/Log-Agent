@@ -8,9 +8,12 @@ Agent/Driver/Default.pm          Default logging driver
 Agent/Driver/File.pm             File driver
 Agent/Driver/Silent.pm           Silent driver
 Agent/Driver/Syslog.pm           Syslog driver
+Agent/File/Native.pm             A native file handle
 Agent/Message.pm                 A log message
 Makefile.PL                      Generic Makefile template
 patchlevel.h                     Records the current patchlevel
+t/caller.t                       Test caller information
 t/code.pl                        Library for tests
 t/default.t                      Test default settings and driver
+t/default_exp.t                  Test default settings, explicit logconfig()
 t/file.t                         Test file driver

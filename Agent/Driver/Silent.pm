@@ -1,5 +1,5 @@
 #
-# $Id: Silent.pm,v 0.1 1999/12/07 21:09:44 ram Exp $
+# $Id: Silent.pm,v 0.1.1.1 2000/03/05 22:23:29 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Silent.pm,v $
+# Revision 0.1.1.1  2000/03/05 22:23:29  ram
+# patch3: added end marker before pod
+#
 # Revision 0.1  1999/12/07 21:09:44  ram
 # Baseline for first alpha release.
 #
@@ -60,6 +63,7 @@ sub logconfess { require Carp; Carp::confess("$_[0]\n"); }
 sub logdie     { die "$_[0]\n"; }
 
 1;	# for require
+__END__
 
 =head1 NAME
 

@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 0.1 1999/12/07 21:09:44 ram Exp $
+# $Id: Message.pm,v 0.1.1.1 2000/03/05 22:23:51 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Message.pm,v $
+# Revision 0.1.1.1  2000/03/05 22:23:51  ram
+# patch3: added end marker before pod
+#
 # Revision 0.1  1999/12/07 21:09:44  ram
 # Baseline for first alpha release.
 #
@@ -130,6 +133,7 @@ sub clone {
 }
 
 1;	# for require
+__END__
 
 =head1 NAME
 
