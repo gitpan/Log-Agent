@@ -69,7 +69,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = sprintf "%d.%01d%02d%s", (split /[^0-9p]+/, '$Name: rel0_3_3 $')[1..4];
+$VERSION = sprintf "%d.%01d%02d%s", (split /[^0-9p]+/, '$Name: rel_0_3_4 $')[1..4];
 
 $Trace = NOTICE;	# Default tracing
 

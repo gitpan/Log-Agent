@@ -1,3 +1,15 @@
+Sat Mar  8 11:43:41 EST 2003   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.4
+
+        Made the logxxx() calls transparent to all (current)
+        sprintf() formatting patterns.  Not all formatting
+        errors will be caught before passed to sprintf(), but 
+        the obviously malformed ones will be detected.
+
+        Added support for embedded newlines in messages passed to
+        logcarp() and logxcarp().
+
 Mon Sep 30 23:48:20 EDT 2002   Mark Rogaski <mrogaski@cpan.org>
 
 . Description:  0.3.3

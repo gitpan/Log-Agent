@@ -1,11 +1,11 @@
 ###########################################################################
-# $Id: Driver.pm,v 1.3 2002/08/02 03:40:50 wendigo Exp $
+# $Id: Driver.pm,v 1.4 2003/03/08 16:40:27 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent::Driver
 #
-# RCS Revision: $Revision: 1.3 $
-# Date: $Date: 2002/08/02 03:40:50 $
+# RCS Revision: $Revision: 1.4 $
+# Date: $Date: 2003/03/08 16:40:27 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
@@ -14,6 +14,12 @@
 # distribution for license information.
 #
 # $Log: Driver.pm,v $
+# Revision 1.4  2003/03/08 16:40:27  wendigo
+# Merged format and multiline carp changes
+#
+# Revision 1.3.2.1  2003/03/08 16:17:31  wendigo
+# Added support for multiline carp messages.
+#
 # Revision 1.3  2002/08/02 03:40:50  wendigo
 # expanded &Carp::shortmess workaround to include 5.8.0 behavior
 #
@@ -220,7 +226,7 @@ sub carpmess {
     my $skip = $offset + 2 + $self->penalty;
     $Carp::CarpLevel += $skip;
     my $original = $str->str;        # Original user message
-    my $msg = &$fn($original);
+    my $msg = &$fn('__MESSAGE__');
     $Carp::CarpLevel -= $skip;
 
     #
@@ -273,6 +279,10 @@ sub carpmess {
     } else {
         $str->set_str($msg);        # Change original message inplace
     }
+
+    $msg = $str->str;
+    $msg =~ s/__MESSAGE__/$original/;
+    $str->set_str($msg);
 
     return $str;
 }

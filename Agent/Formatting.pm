@@ -1,11 +1,11 @@
 ###########################################################################
-# $Id: Formatting.pm,v 1.2 2002/05/12 07:20:03 wendigo Exp $
+# $Id: Formatting.pm,v 1.3 2003/03/08 16:40:27 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent::Formatting
 #
-# RCS Revision: $Revision: 1.2 $
-# Date: $Date: 2002/05/12 07:20:03 $
+# RCS Revision: $Revision: 1.3 $
+# Date: $Date: 2003/03/08 16:40:27 $
 #
 # Copyright (c) 1999 Raphael Manfredi
 # Copyright (c) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
@@ -14,6 +14,12 @@
 # distribution for license information.
 #
 # $Log: Formatting.pm,v $
+# Revision 1.3  2003/03/08 16:40:27  wendigo
+# Merged format and multiline carp changes
+#
+# Revision 1.2.2.1  2002/12/13 04:25:24  wendigo
+# Fixed logxxx() formatting to match sprintf semantics.
+#
 # Revision 1.2  2002/05/12 07:20:03  wendigo
 # Reduced format_args to adjust_msg
 # Added prechecks of sprintf() arguments
@@ -107,7 +113,8 @@ sub tag_format_args {
     # programs a bit easier by prechecking input to sprintf() 
     # for errors.  I usually prefer lazy error checking, but 
     # this seems to be an appropriate exception.
-    if (my $argcnt = grep !/%%/, $msg =~ /%./g) {
+    if (my $argcnt = grep !/\%\%/, $msg =~
+            /\%[^\%]*[csduoxefgXEGbpniDUOF]|\%\%/g) {
         BEGIN { $^W = 0 }
         if (grep {! defined} @$ary[0..($argcnt - 1)]) {
             whine("Use of uninitialized value in sprintf");
