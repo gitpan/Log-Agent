@@ -1,5 +1,5 @@
 #
-# $Id: File.pm,v 0.1.1.2 2000/06/20 21:25:01 ram Exp $
+# $Id: File.pm,v 0.1.1.3 2000/10/01 19:53:23 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: File.pm,v $
+# Revision 0.1.1.3  2000/10/01 19:53:23  ram
+# patch8: conforms to new driver interface
+#
 # Revision 0.1.1.2  2000/06/20 21:25:01  ram
 # patch5: added logcroak()
 #
@@ -108,7 +111,7 @@ sub make {
 	$self->{'stampfmt'} = $self->stamping_fn($self->stampfmt)
 		unless ref $self->stampfmt eq 'CODE';
 
-	$self->_init($prefix, 0);		# 0 is the skip Carp penalty for confess
+	$self->_init($prefix, 0);		# 1 is the skip Carp penalty for confess
 
 	$self->{'channels'} = {} unless $self->channels;	# No defined channel
 	$self->{'channel_fds'} = {};						# No opened files
@@ -187,14 +190,46 @@ sub prefix_msg {
 }
 
 #
+# ->chanfd
+#
+# Return channel $fd object (one of the Log::Agent::File::* objects)
+#
+sub chanfd {
+	my $self = shift;
+	my ($channel) = @_;
+	my $fd = $self->channel_fds->{$channel};
+	$fd = $self->open_channel($channel) unless $fd;
+	return $fd;
+}
+
+#
+# ->chanfn
+#
+# Return channel file name.
+#
+sub chanfn {
+	my $self = shift;
+	my ($channel) = @_;
+	my $filename = $self->channels->{$channel};
+	if (ref $filename eq 'ARRAY') {
+		$filename = $filename->[0];
+	}
+	# No channel defined, use 'error'
+	$filename = $self->channels->{'error'} unless
+		defined $filename && length $filename;
+	$filename = '<STDERR>' unless defined $filename;
+
+	return $filename;
+}
+
+#
 # ->emit			-- defined
 #
 sub emit {
 	my $self = shift;
 	my ($channel, $priority, $logstring) = @_;
 	local $\ = undef;
-	my $fd = $self->channel_fds->{$channel};
-	$fd = $self->open_channel($channel) unless $fd;
+	my $fd = $self->chanfd($channel);
 	return unless $fd;
 
 	#
@@ -203,10 +238,28 @@ sub emit {
 	# It can be targetted on various Log::Agent::File::* objects, which
 	# all happen to provide a print() feature with the same signature.
 	# However, those clases have no inheritance relationship because Perl
-	# is not type, and the ancestor would be a deferred class anyway.
+	# is not typed, and the ancestor would be a deferred class anyway.
 	#
 
 	$fd->print($logstring, "\n");
+}
+
+#
+# ->channel_eq		-- defined
+#
+# Compare two channels.
+#
+# It's hard to know for certain that two channels are equivalent, so we
+# compare filenames.  This is not correct, of course, but it will do for
+# what we're trying to achieve here, namely avoid duplicates if possible
+# when traces are remapped to Devel::Datum.
+#
+sub channel_eq {
+	my $self = shift;
+	my ($chan1, $chan2) = @_;
+	my $fn1 = $self->chanfn($chan1);
+	my $fn2 = $self->chanfn($chan2);
+	return $fn1 eq $fn2;
 }
 
 #
@@ -333,16 +386,24 @@ sub logconfess {
 }
 
 #
-# ->logcroak
+# ->logxcroak
 #
 # When `duperr' is true, emit message on the 'output' channel prefixed
 # with FATAL.
 #
-sub logcroak {
+sub logxcroak {
 	my $self = shift;
-	my ($str) = @_;
-	$self->emit_output('critical', "FATAL", $str) if $self->duperr;
-	$self->SUPER::logcroak($str);		# Carp strips calls within hierarchy
+	my ($offset, $str) = @_;
+	my $msg = Log::Agent::Message->make(
+		$self->carpmess($offset, $str, \&Carp::shortmess)
+	);
+	$self->emit_output('critical', "FATAL", $msg) if $self->duperr;
+
+	#
+	# Carp strips calls within hierarchy, so that new call should not show,
+	# there's no need to adjust the frame offset.
+	#
+	$self->SUPER::logdie($msg);
 }
 
 #
@@ -375,13 +436,29 @@ sub logerr {
 # ->logwarn
 #
 # When `duperr' is true, emit message on the 'output' channel prefixed
-# with ERROR.
+# with WARNING.
 #
 sub logwarn {
 	my $self = shift;
 	my ($str) = @_;
 	$self->emit_output('warning', "WARNING", $str) if $self->duperr;
 	$self->SUPER::logwarn($str);
+}
+
+#
+# ->logxcarp
+#
+# When `duperr' is true, emit message on the 'output' channel prefixed
+# with WARNING.
+#
+sub logxcarp {
+	my $self = shift;
+	my ($offset, $str) = @_;
+	my $msg = Log::Agent::Message->make(
+		$self->carpmess($offset, $str, \&Carp::shortmess)
+	);
+	$self->emit_output('warning', "WARNING", $msg) if $self->duperr;
+	$self->SUPER::logwarn($msg);
 }
 
 1;	# for require
@@ -515,8 +592,8 @@ The following formats are available:
 
     date      "[Fri Oct 22 16:23:10 1999]"
     none
-    own       "99/10/24 09:43:49"
-    syslog    "Oct 27 21:09:33".
+    own       "99/10/22 16:23:10"
+    syslog    "Oct 22 16:23:10".
 
 You may also specify a CODE ref: that routine will be called every time
 we need to compute a time stamp. It should not expect any parameter, and

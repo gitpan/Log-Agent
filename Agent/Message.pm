@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 0.1.1.1 2000/03/05 22:23:51 ram Exp $
+# $Id: Message.pm,v 0.1.1.2 2000/10/01 20:00:06 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Message.pm,v $
+# Revision 0.1.1.2  2000/10/01 20:00:06  ram
+# patch8: added set_str, prepend_first and append_last
+#
 # Revision 0.1.1.1  2000/03/05 22:23:51  ram
 # patch3: added end marker before pod
 #
@@ -53,6 +56,7 @@ sub append_list		{ $_[0]->[2] }
 # Attribute setting
 #
 
+sub set_str				{ $_[0]->[0] = $_[1] }
 sub set_prepend_list	{ $_[0]->[1] = $_[1] }
 sub set_append_list		{ $_[0]->[2] = $_[1] }
 
@@ -73,6 +77,21 @@ sub prepend {
 }
 
 #
+# ->prepend_first
+#
+# Add string to the prepend list, at its HEAD.
+#
+sub prepend_first {
+	my $self = shift;
+	my ($str) = @_;
+
+	my $array = $self->prepend_list;
+	$array = $self->set_prepend_list([]) unless $array;
+
+	unshift(@{$array}, $str);
+}
+
+#
 # ->append
 #
 # Add string to the append list, at its HEAD.
@@ -86,6 +105,21 @@ sub append {
 	$array = $self->set_append_list([]) unless $array;
 
 	unshift(@{$array}, $str);
+}
+
+#
+# ->append_last
+#
+# Add string to the append list, at its TAIL.
+#
+sub append_last {
+	my $self = shift;
+	my ($str) = @_;
+
+	my $array = $self->append_list;
+	$array = $self->set_append_list([]) unless $array;
+
+	push(@{$array}, $str);
 }
 
 #
@@ -174,6 +208,11 @@ The following routines are available:
 Append suppled string $str to the original string (given at creation
 time), at the head of all existing appended strings.
 
+=item append_last($str)
+
+Append suppled string $str to the original string (given at creation
+time), at the tail of all existing appended strings.
+
 =item clone
 
 Clone the message. This is not a shallow clone, because the list of
@@ -191,6 +230,11 @@ This is the creation routine.
 
 Prepend supplied string $str to the original string (given at creation
 time), at the tail of all existing prepended strings.
+
+=item prepend_first($str)
+
+Prepend supplied string $str to the original string (given at creation
+time), at the head of all existing prepended strings.
 
 =item stringify
 

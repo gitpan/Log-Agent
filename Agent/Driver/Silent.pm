@@ -1,5 +1,5 @@
 #
-# $Id: Silent.pm,v 0.1.1.2 2000/06/20 21:25:25 ram Exp $
+# $Id: Silent.pm,v 0.1.1.3 2000/10/01 19:53:23 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Silent.pm,v $
+# Revision 0.1.1.3  2000/10/01 19:53:23  ram
+# patch8: conforms to changed driver interface
+#
 # Revision 0.1.1.2  2000/06/20 21:25:25  ram
 # patch5: added empty logwrite() and new logcroak()
 #
@@ -46,6 +49,7 @@ sub make {
 
 sub prefix_msg {}
 sub emit {}
+sub channel_eq { 1 }
 
 #
 # In theory, we could live with the above NOP ops and the logxxx()
@@ -56,14 +60,28 @@ sub logerr {}
 sub logwarn {}
 sub logsay {}
 sub logwrite {}
+sub logxcarp {}
 
 #
 # Those need minimal processing.
+# We explicitely stringify the string argument (uses overloaded "" method)
 #
 
-sub logconfess { require Carp; Carp::confess("$_[0]"); }
-sub logcroak   { require Carp; Carp::croak("$_[0]"); }
+sub logconfess { require Carp; Carp::confess("$_[1]"); }
 sub logdie     { die "$_[0]\n"; }
+
+#
+# ->logxcroak		-- redefined
+#
+# Handle the offset parameter correctly
+#
+sub logxcroak  {
+	my $self = shift;
+	my ($offset, $str) = @_;
+	require Carp;
+	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
+	die "$msg\n";
+}
 
 1;	# for require
 __END__

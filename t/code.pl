@@ -1,5 +1,5 @@
 #
-# $Id: code.pl,v 0.1.1.1 2000/03/05 22:24:42 ram Exp $
+# $Id: code.pl,v 0.1.1.2 2000/10/01 20:00:54 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: code.pl,v $
+# Revision 0.1.1.2  2000/10/01 20:00:54  ram
+# patch8: contains now returns line where match occurred
+#
 # Revision 0.1.1.1  2000/03/05 22:24:42  ram
 # patch3: added ok()
 #
@@ -29,14 +32,16 @@ sub contains {
 	local $_;
 	open(FILE, $file) || die "can't open $file: $!\n";
 	my $found = 0;
+	my $line = 0;
 	while (<FILE>) {
+		$line++;
 		if (/$pattern/) {
 			$found = 1;
 			last;
 		}
 	}
 	close FILE;
-	return $found;
+	return $found ? $line : 0;
 }
 
 1;

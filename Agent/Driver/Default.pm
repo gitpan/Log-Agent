@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.1.1.2 2000/06/20 21:24:27 ram Exp $
+# $Id: Default.pm,v 0.1.1.3 2000/10/01 19:53:23 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
+# Revision 0.1.1.3  2000/10/01 19:53:23  ram
+# patch8: conforms to changes in driver interface
+#
 # Revision 0.1.1.2  2000/06/20 21:24:27  ram
 # patch5: logconfess() and logcroak() now use ->carpmess
 #
@@ -71,6 +74,20 @@ sub emit {
 }
 
 #
+# ->channel_eq		-- defined
+#
+# Redirect comparison to driver.
+#
+sub channel_eq {
+	my $self = shift;
+	my ($chan1, $chan2) = @_;
+	return 1 if $chan1 eq $chan2;
+	return 1 if $chan1 eq 'debug' && $chan2 eq 'output';
+	return 1 if $chan1 eq 'output' && $chan2 eq 'debug';
+	return 0;
+}
+
+#
 # ->logconfess		-- redefined
 #
 # Fatal error, with stack trace
@@ -79,20 +96,20 @@ sub logconfess {
 	my $self = shift;
 	my ($str) = @_;
 	require Carp;
-	my $msg = $self->carpmess($str, \&Carp::longmess);
+	my $msg = $self->carpmess(0, $str, \&Carp::longmess);
 	die $self->prefix_msg("$msg\n");
 }
 
 #
-# ->logcroak		-- redefined
+# ->logxcroak		-- redefined
 #
 # Fatal error, from perspective of caller
 #
-sub logcroak {
+sub logxcroak {
 	my $self = shift;
-	my ($str) = @_;
+	my ($offset, $str) = @_;
 	require Carp;
-	my $msg = $self->carpmess($str, \&Carp::shortmess);
+	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
 	die $self->prefix_msg("$msg\n");
 }
 
@@ -128,6 +145,20 @@ sub logwarn {
 	my ($str) = @_;
 	$str->prepend("WARNING: ");
 	warn $self->prefix_msg("$str\n");
+}
+
+#
+# ->logxcarp		-- redefined
+#
+# Warn from perspective of caller, with "WARNING" clearly emphasized.
+#
+sub logxcarp {
+	my $self = shift;
+	my ($offset, $str) = @_;
+	$str->prepend("WARNING: ");
+	require Carp;
+	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
+	warn $self->prefix_msg("$msg\n");
 }
 
 1;	# for require

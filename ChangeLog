@@ -1,3 +1,19 @@
+Sun Oct  1 22:05:51 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Version 0.1.8
+
+	Added support for Devel::Datum.  This module is still under
+	development, but is already used in production system.
+
+	New logcarp, logxcarp and logxcroak interface.
+
+	Fixed carpmess to work around Carp's incorrect offseting and
+	added a test suite for logcarp and logxcarp.
+
+	5 new files.
+
 Tue Jul  4 22:03:04 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

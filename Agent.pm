@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1.1.7 2000/07/04 20:02:59 ram Exp $
+# $Id: Agent.pm,v 0.1.1.9 2000/10/01 20:02:29 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,13 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.9  2000/10/01 20:02:29  ram
+# patch8: changed version number
+#
+# Revision 0.1.1.8  2000/10/01 19:49:22  ram
+# patch8: added support for Devel::Datum
+# patch8: new logcarp, logxcarp and logxcroak interface
+#
 # Revision 0.1.1.7  2000/07/04 20:02:59  ram
 # patch7: forgot to increase version number at last patch
 #
@@ -44,14 +51,15 @@ require Exporter;
 ########################################################################
 package Log::Agent;
 
-use vars qw($VERSION $Driver $Prefix $Trace $Debug $Confess $Caller);
+use vars qw($VERSION $Driver $Prefix $Trace $Debug $Confess $Caller $DATUM);
 use AutoLoader 'AUTOLOAD';
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	logconfig
-	logconfess logcroak logsay logerr logwarn logdie logtrc logdbg
+	logconfess logcroak logcarp logxcroak logxcarp
+	logsay logerr logwarn logdie logtrc logdbg
 );
 @EXPORT_OK = qw(
 	logwrite
@@ -59,7 +67,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 require Log::Agent::Message;
 
-$VERSION = '0.107';
+$VERSION = '0.108';
 
 ###
 ### Utilities
@@ -207,6 +215,8 @@ sub logconfig {
 
 	unless (defined $Driver) {
 		require Log::Agent::Driver::Default;
+		# Keep only basename for default prefix
+		$Prefix =~ s|^.*/(.*)|$1| if defined $Prefix;
 		$Driver = Log::Agent::Driver::Default->make($Prefix);
 	}
 
@@ -218,6 +228,9 @@ sub logconfig {
 		require Log::Agent::Caller;
 		$Caller = Log::Agent::Caller->make(-offset => 2, @{$calldef});
 	};
+
+	# Install interceptor if needed
+	DATUM_is_here() if defined $DATUM && $DATUM;
 }
 
 #
@@ -227,7 +240,33 @@ sub logconfig {
 # NOT exported, must be called as Log::Agent::inited().
 #
 sub inited {
+	return 0 unless defined $Driver;
 	return ref $Driver ? 1 : 0;
+}
+
+#
+# DATUM_is_here		-- undocumented, but for Devel::Datum
+#
+# Tell Log::Agent that the Devel::Datum package was loaded and configured
+# for debug.
+#
+# If there is a driver configured already, install the interceptor.
+# Otherwise, record that DATUM is here and the interceptor will be installed
+# by logconfig().
+#
+# NOT exported, must be called as Log::Agent::DATUM_is_here().
+#
+sub DATUM_is_here {
+	$DATUM = 1;
+	return unless defined $Driver;
+	return if ref $Driver eq 'Log::Agent::Driver::Datum';
+
+	#
+	# Install the interceptor.
+	#
+
+	require Log::Agent::Driver::Datum;
+	$Driver = Log::Agent::Driver::Datum->make($Driver);
 }
 
 #
@@ -262,8 +301,22 @@ sub logcroak {
 	goto &logconfess if $Confess;		# Redirected when -confess
 	my $str = format_args(@_);
 	&log_default;
-	$Driver->logcroak($str);
-	bug("back from logcroak in driver $Driver\n");
+	$Driver->logxcroak(0, $str);
+	bug("back from logxcroak in driver $Driver\n");
+}
+
+#
+# logxcroak
+#
+# Same a logcroak, but with a specific additional offset.
+#
+sub logxcroak {
+	my $offset = shift;
+	goto &logconfess if $Confess;		# Redirected when -confess
+	my $str = format_args(@_);
+	&log_default;
+	$Driver->logxcroak($offset, $str);
+	bug("back from logxcroak in driver $Driver\n");
 }
 
 #
@@ -289,6 +342,29 @@ sub logerr {
 	my $str = format_args(@_);
 	&log_default;
 	$Driver->logerr($str);
+}
+
+#
+# logcarp
+#
+# Warning, from the perspective of our caller
+#
+sub logcarp {
+	my $str = format_args(@_);
+	&log_default;
+	$Driver->logxcarp(0, $str);
+}
+
+#
+# logxcarp
+#
+# Same a logcarp, but with a specific additional offset.
+#
+sub logxcarp {
+	my $offset = shift;
+	my $str = format_args(@_);
+	&log_default;
+	$Driver->logxcarp($offset, $str);
 }
 
 #
@@ -535,6 +611,11 @@ your class).
 
 Log a warning message at the C<warning> priority to the C<error> channel.
 
+=item logcarp I<message>
+
+Same as logwarn(), but issues a Carp::carp(3) call instead, which will
+warn from the perspective of the routine's caller.
+
 =item logerr I<message>
 
 Log an error message at the C<error> priority to the C<error> channel.
@@ -565,7 +646,25 @@ a logconfig() or implicitely via any logxxx() call.
 
 =back
 
-For applications that may wish to implement a debug layer on top of Log::Agent,
+Modules sometimes wish to report errors from the perspective of their
+caller's caller, not really their caller.  The following interface is
+therefore provided:
+
+=over
+
+=item logxcarp I<offset>, I<message>
+
+Same a logcarp(), but with an additional offset to be applied on the
+stack.  To warn one level above your caller, set it to 1.
+
+=item logxcroak I<offset>, I<message>
+
+Same a logcroak(), but with an additional offset to be applied on the
+stack.  To report an error one level above your caller, set it to 1.
+
+=back
+
+For applications that wish to implement a debug layer on top of Log::Agent,
 the following routine is provided.  Note that it is not imported by default,
 i.e. it needs to be explicitely mentionned at C<use> time, since it is not
 meant to be used directly under regular usage.
@@ -627,7 +726,7 @@ common value.
 
 Defines the application name which will be pre-pended to all messages, followed
 by C<": "> (a colon and a space). Using this switch alone will configure
-the default driver to use that prefix.
+the default driver to use that prefix (stripped down to its basename component).
 
 When a driver object is used, the C<-prefix> switch is kept at the Log::Agent
 level only and is not passed to the driver: it is up to the driver's creation

@@ -1,5 +1,5 @@
 #
-# $Id: Syslog.pm,v 0.1.1.2 2000/06/20 21:25:44 ram Exp $
+# $Id: Syslog.pm,v 0.1.1.3 2000/10/01 19:59:17 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Syslog.pm,v $
+# Revision 0.1.1.3  2000/10/01 19:59:17  ram
+# patch8: conforms to changed driver interface
+#
 # Revision 0.1.1.2  2000/06/20 21:25:44  ram
 # patch5: changed _init() signature to add stack trace penalty
 #
@@ -116,6 +119,15 @@ sub disconnect {
 sub prefix_msg {
 	my $self = shift;
 	return $_[0];
+}
+
+#
+# ->channel_eq		-- defined
+#
+# Always true.
+#
+sub channel_eq {
+	return 1;
 }
 
 my %syslog_pri = (

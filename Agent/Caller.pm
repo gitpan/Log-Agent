@@ -1,5 +1,5 @@
 #
-# $Id: Caller.pm,v 0.1.1.2 2000/03/30 19:24:55 ram Exp $
+# $Id: Caller.pm,v 0.1.1.3 2000/10/01 19:49:52 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Caller.pm,v $
+# Revision 0.1.1.3  2000/10/01 19:49:52  ram
+# patch8: fixed typo
+#
 # Revision 0.1.1.2  2000/03/30 19:24:55  ram
 # patch4: forgot that /(?<!)/ is a 5.005 feature
 #
@@ -37,7 +40,7 @@ package Log::Agent::Caller;
 #	-INFO		string of keywords like "package filename line subroutine"
 #	-FORMAT		formatting instructions, like "%s:%d", used along with -INFO
 #	-POSTFIX	whether to postfix log message or prefix it.
-#   -DISPLAY    a string like '($package::$subroutine/$line)', supersedes -INFO
+#   -DISPLAY    a string like '($subroutine/$line)', supersedes -INFO
 #
 # Attributes:
 #	indices		listref of indices to select in the caller() array

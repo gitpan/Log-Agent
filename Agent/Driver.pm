@@ -1,5 +1,5 @@
 #
-# $Id: Driver.pm,v 0.1.1.2 2000/06/20 21:23:26 ram Exp $
+# $Id: Driver.pm,v 0.1.1.3 2000/10/01 19:52:58 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,11 @@
 #
 # HISTORY
 # $Log: Driver.pm,v $
+# Revision 0.1.1.3  2000/10/01 19:52:58  ram
+# patch8: interface now implements logxcroak instead of logcroak
+# patch8: added logxcarp, add_penalty and channel_eq to interface
+# patch8: fixed carpmess to work around Carp's incorrect offseting
+#
 # Revision 0.1.1.2  2000/06/20 21:23:26  ram
 # patch5: removed logtrc() and logdbg() from interface
 # patch5: superseded by logwrite(), above routines now frozen
@@ -61,6 +66,15 @@ sub make {
 }
 
 #
+# ->channel_eq
+#
+# Compare two channels and return true if they go to the same output.
+#
+sub channel_eq {
+	&is_deferred;
+}
+
+#
 # ->_init
 #
 # Common initilization routine
@@ -70,6 +84,17 @@ sub _init {
 	my ($prefix, $penalty) = @_;
 	$self->{'prefix'} = $prefix;		# Prefix info to prepend
 	$self->{'penalty'} = $penalty;		# Carp stack skip penalty
+}
+
+#
+# ->add_penalty		-- "exported" only to Log::Agent::Driver::Datum
+#
+# Add offset to current driver penalty
+#
+sub add_penalty {
+	my $self = shift;
+	my ($offset) = @_;
+	$self->{penalty} += $offset;
 }
 
 my %level = (
@@ -153,11 +178,11 @@ sub prefix_msg {
 #
 # Utility routine for logconfess and logcroak which builds the "die" message
 # by calling the appropriate routine in Carp, and offseting the stack
-# according to our call stack configuration.
+# according to our call stack configuration, plus any offset.
 #
 sub carpmess {
 	my $self = shift;
-	my ($str, $fn) = @_;
+	my ($offset, $str, $fn) = @_;
 
 	#
 	# While confessing, we have basically tell $fn() to skip 2 stack frames:
@@ -171,15 +196,57 @@ sub carpmess {
 
 	require Carp;
 
-	my $skip = 2 + $self->penalty;
+	my $skip = $offset + 2 + $self->penalty;
 	$Carp::CarpLevel += $skip;
-	my $msg = &$fn("$str");			# Need to stringify message object
+	my $original = $str->str;		# Original user message
+	my $msg = &$fn($original);
 	$Carp::CarpLevel -= $skip;
-	chop($msg);						# Remove final "\n" added
 
-	return $msg;
+	#
+	# If we have a newline in the message, we have a full stack trace.
+	# Replace the original message string with the first line, and
+	# append the remaining.
+	#
+
+	chomp($msg);					# Remove final "\n" added
+	if ($msg =~ s/^(.*?)\n//) {
+		my $first = $1;
+
+		#
+		# Patch incorrect computation by Carp, which occurs when we request
+		# a short message and we get a long one.  In that case, what we
+		# want is the first line of the extra message.
+		#
+		# This bug manifests when the whole call chain above Log::Agent
+		# lies in "main".  When objects are involved, it seems to work
+		# correctly.
+		#
+		# The kludge here is valid for perl 5.005_03.  If some day Carp is
+		# fixed, we will have to test for the Perl version.  The right fix,
+		# I believe, would be to have Carp skip frame first, and not last
+		# as it currently does.
+		#		-- RAM, 30/09/2000
+		#
+
+		if ($fn == \&Carp::shortmess) {				# Kludge alert!!
+			$first =~ s/(at (\S+) line \d+)$//;
+			my $bad = $1;
+			my @stack = split(/\n/, $msg);
+			my ($at) = $stack[0] =~ /(at \S+ line \d+)$/;
+			$at = "$bad (Log::Agent could not fix it)" unless $at;
+			$first .= $at;
+			$str->set_str($first);
+		} else {
+			$str->set_str($first);
+			$str->append_last("\n");
+			$str->append_last($msg);	# Stack at the very tail of message
+		}
+	} else {
+		$str->set_str($msg);		# Change original message inplace
+	}
+
+	return $str;
 }
-
 
 #
 # ->logconfess
@@ -190,7 +257,7 @@ sub carpmess {
 sub logconfess {
 	my $self = shift;
 	my ($str) = @_;
-	my $msg = $self->carpmess($str, \&Carp::longmess);
+	my $msg = $self->carpmess(0, $str, \&Carp::longmess);
 	$self->emit('error',
 		$self->priority('critical'),
 		$self->prefix_msg($msg));
@@ -198,15 +265,15 @@ sub logconfess {
 }
 
 #
-# ->logcroak
+# ->logxcroak
 #
 # Fatal error, from the perspective of the caller.
 # Error is logged, and then we confess.
 #
-sub logcroak {
+sub logxcroak {
 	my $self = shift;
-	my ($str) = @_;
-	my $msg = $self->carpmess($str, \&Carp::shortmess);
+	my ($offset, $str) = @_;
+	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
 	$self->emit('error',
 		$self->priority('critical'),
 		$self->prefix_msg($msg));
@@ -239,6 +306,20 @@ sub logerr {
 	$self->emit('error',
 		$self->priority('error'),
 		$self->prefix_msg($str));
+}
+
+#
+# ->logxcarp
+#
+# Log warning, from the perspective of the caller.
+#
+sub logxcarp {
+	my $self = shift;
+	my ($offset, $str) = @_;
+	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
+	$self->emit('error',
+		$self->priority('warning'),
+		$self->prefix_msg($msg));
 }
 
 #
@@ -406,6 +487,14 @@ by the heir:
 
 =over
 
+=item channel_eq($chan1, $chan2)
+
+Returns true when both channels $chan1 and $chan2 send their output to
+the same place.  The purpose is not to have a 100% accurate comparison,
+which is almost impossible for the Log::Agent::Driver::File driver,
+but to reasonably detect similarities to avoid duplicating messages to
+the same output when Devel::Datum is installed and activated.
+
 =item emit($channel, $priority, $logstring)
 
 Emit the log entry held in $logstring, at priority $priority and through
@@ -484,6 +573,13 @@ Log message to the C<output> channel, at the C<notice> priority.
 
 Log warning to the C<error> channel at the C<warning> priority.
 
+=item logxcarp($offset, $str)
+
+Log warning to the C<error> channel at the C<warning> priority, from
+the perspective of the caller.  An additional $offset stack frames
+are skipped to find the caller (added to the hardwired fixed offset imposed
+by the overall Log::Agent architecture).
+
 =item logerr($str)
 
 Log error to the C<error> channel at the C<error> priority.
@@ -493,11 +589,13 @@ Log error to the C<error> channel at the C<error> priority.
 Log fatal error to the C<error> channel at the C<critical> priority
 and then call die() with "$str\n" as argument.
 
-=item logcroak($str)
+=item logxcroak($offset, $str)
 
 Log a fatal error, from the perspective of the caller. The error is logged
 to the C<error> channel at the C<critical> priority and then Carp::croak()
-is called with "$str\n" as argument.
+is called with "$str\n" as argument.  An additional $offset stack frames
+are skipped to find the caller (added to the hardwired fixed offset imposed
+by the overall Log::Agent architecture).
 
 =item logconfess($str)
 
@@ -561,6 +659,6 @@ Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
 =head1 SEE ALSO
 
 Log::Agent(3), Log::Agent::Driver::Default(3), Log::Agent::Driver::File(3),
-Log::Agent::Driver::Silent(3), Log::Agent::Driver::Syslog(3).
+Log::Agent::Driver::Silent(3), Log::Agent::Driver::Syslog(3), Devel::Datum(3).
 
 =cut
