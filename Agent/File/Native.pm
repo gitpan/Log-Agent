@@ -1,5 +1,5 @@
 #
-# $Id: Native.pm,v 0.2.1.1 2000/11/12 14:46:40 ram Exp $
+# $Id: Native.pm,v 0.2.1.2 2001/03/31 10:01:17 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #  
 # HISTORY
 # $Log: Native.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:01:17  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2.1.1  2000/11/12 14:46:40  ram
 # patch1: reset $\ before printing
 #
@@ -89,7 +92,7 @@ Log::Agent::File::Native - low-overhead IO::File
 This class is a stripped down implementation of IO::File, to avoid using
 the IO::* hierarchy which does not work properly for my simple needs.
 
-=over
+=over 4
 
 =item make I<glob>
 

@@ -1,5 +1,5 @@
 #
-# $Id: Priorities.pm,v 0.2.1.1 2000/11/12 14:46:52 ram Exp $
+# $Id: Priorities.pm,v 0.2.1.2 2001/03/31 10:02:04 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priorities.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:02:04  ram
+# patch7: fixed off-by-one error in prio_from_level()
+#
 # Revision 0.2.1.1  2000/11/12 14:46:52  ram
 # patch1: fixed indentation
 #
@@ -63,7 +66,7 @@ my @basic_prio = qw(
 sub prio_from_level {
 	my ($level) = @_;
 	return 'none' if $level < 0;
-	return 'debug' if $level > @basic_prio;
+	return 'debug' if $level >= @basic_prio;
 	return $basic_prio[$level];
 }
 
@@ -85,10 +88,10 @@ my %basic_level = (
 #
 sub level_from_prio {
 	my ($prio) = @_;
-	return -1 if $prio eq 'none';
+	return -1 if lc($prio) eq 'none';		# none & notice would look alike
 	my $canonical = lc(substr($prio, 0, 2));
 	return 10 unless exists $basic_level{$canonical};
-	return $basic_level{$canonical};
+	return $basic_level{$canonical} || -1;
 }
 
 #

@@ -1,5 +1,5 @@
 #
-# $Id: Handle.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Handle.pm,v 0.2.1.1 2001/03/31 10:00:16 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Handle.pm,v $
+# Revision 0.2.1.1  2001/03/31 10:00:16  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -159,7 +162,7 @@ along with the necessary prefixing and stamping of the messages.
 
 The creation routine make() takes the following arguments:
 
-=over
+=over 4
 
 =item C<-handle> => I<handle>
 

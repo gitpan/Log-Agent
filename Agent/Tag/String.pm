@@ -1,5 +1,5 @@
 #
-# $Id: String.pm,v 0.2.1.1 2001/03/13 18:45:21 ram Exp $
+# $Id: String.pm,v 0.2.1.2 2001/03/31 10:02:25 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: String.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:02:25  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2.1.1  2001/03/13 18:45:21  ram
 # patch2: created
 #
@@ -99,7 +102,7 @@ This class represents a constant tag string.
 
 The following parameters are defined, in alphabetical order:
 
-=over
+=over 4
 
 =item C<-name> => I<name>
 

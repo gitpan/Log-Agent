@@ -1,5 +1,5 @@
 #
-# $Id: Syslog.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Syslog.pm,v 0.2.1.1 2001/03/31 10:01:13 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Syslog.pm,v $
+# Revision 0.2.1.1  2001/03/31 10:01:13  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -140,7 +143,7 @@ the Sys::Syslog(3) interface.
 
 The creation routine make() takes the following switches:
 
-=over
+=over 4
 
 =item C<-facility> => I<facility>
 

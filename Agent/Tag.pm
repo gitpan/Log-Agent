@@ -1,5 +1,5 @@
 #
-# $Id: Tag.pm,v 0.2.1.1 2001/03/13 18:45:12 ram Exp $
+# $Id: Tag.pm,v 0.2.1.2 2001/03/31 10:02:18 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #  
 # HISTORY
 # $Log: Tag.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:02:18  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2.1.1  2001/03/13 18:45:12  ram
 # patch2: created
 #
@@ -135,7 +138,7 @@ for the exact semantics of append() and prepend() operations.
 This section documents the interface provided to heirs, in case you wish
 to implement your own tag class.
 
-=over
+=over 4
 
 =item _init(I<name>, I<postfix>, I<separator>)
 
@@ -187,7 +190,7 @@ is done via a frozen routine from the C<Log::Agent::Tag> ancestor.
 
 The following classes are provided by C<Log::Agent>:
 
-=over
+=over 4
 
 =item C<Log::Agent::Tag::Callback>
 

@@ -1,5 +1,5 @@
 #
-# $Id: Caller.pm,v 0.2.1.1 2001/03/13 18:45:18 ram Exp $
+# $Id: Caller.pm,v 0.2.1.2 2001/03/31 10:02:22 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Caller.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:02:22  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2.1.1  2001/03/13 18:45:18  ram
 # patch2: created
 #
@@ -224,7 +227,7 @@ This class knows about four entities: I<package>, I<filename>, I<line>
 and I<subroutine>, which are to be understood within the context of the
 Log::Agent routine being called (e.g. a logwarn() routine), namely:
 
-=over
+=over 4
 
 =item package
 
@@ -255,7 +258,7 @@ to spell it out fully.
 The purpose of those parameters is to define how caller information entities
 (as defined by the previous section) will be formatted within the log message.
 
-=over
+=over 4
 
 =item C<-display> => I<string>
 

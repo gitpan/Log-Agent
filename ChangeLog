@@ -1,3 +1,14 @@
+Sat Mar 31 12:03:15 MEST 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Massive renaming Devel::Datum -> Carp::Datum.
+
+	Fixed =over to add explicit indent level, for POD checkers.
+
+	Fixed off-by-one error in prio_from_level(), which caused
+	improper conversion for level 10.
+
 Thu Mar 15 00:42:22 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

@@ -1,5 +1,5 @@
 #
-# $Id: File.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: File.pm,v 0.2.1.1 2001/03/31 10:00:14 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: File.pm,v $
+# Revision 0.2.1.1  2001/03/31 10:00:14  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -302,7 +305,7 @@ for each logging channel defined at driver creation time.
 
 The creation routine make() takes the following arguments:
 
-=over
+=over 4
 
 =item C<-filename> => I<file>
 

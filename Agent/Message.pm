@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Message.pm,v 0.2.1.1 2001/03/31 10:01:22 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Message.pm,v $
+# Revision 0.2.1.1  2001/03/31 10:01:22  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2  2000/11/06 19:30:33  ram
 # Baseline for second Alpha release.
 #
@@ -195,7 +198,7 @@ is symetric for appending.
 
 The following routines are available:
 
-=over
+=over 4
 
 =item append($str)
 

@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.2.1.1 2000/11/12 14:45:51 ram Exp $
+# $Id: Default.pm,v 0.2.1.2 2001/03/31 10:00:53 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:00:53  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2.1.1  2000/11/12 14:45:51  ram
 # patch1: need to reset $\ before printing
 #
@@ -177,7 +180,7 @@ and logwarn() will call warn() with a clear "WARNING: " emphasis
 
 The only routine of interest here is the creation routine:
 
-=over
+=over 4
 
 =item make($prefix)
 

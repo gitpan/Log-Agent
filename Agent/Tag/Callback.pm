@@ -1,5 +1,5 @@
 #
-# $Id: Callback.pm,v 0.2.1.1 2001/03/13 18:45:16 ram Exp $
+# $Id: Callback.pm,v 0.2.1.2 2001/03/31 10:02:20 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Callback.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:02:20  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2.1.1  2001/03/13 18:45:16  ram
 # patch2: created
 #
@@ -144,7 +147,7 @@ interface to plug it in).  At least version 1.02 must be used.
 
 The following parameters are defined, in alphabetical order:
 
-=over
+=over 4
 
 =item C<-callback> => C<Callback> I<object>
 

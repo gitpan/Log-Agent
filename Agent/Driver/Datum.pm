@@ -1,5 +1,5 @@
 #
-# $Id: Datum.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Datum.pm,v 0.2.1.1 2001/03/31 10:00:41 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Datum.pm,v $
+# Revision 0.2.1.1  2001/03/31 10:00:41  ram
+# patch7: massive renaming Devel::Datum -> Carp::Datum
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -69,13 +72,13 @@ sub channel_eq {
 #
 # ->datum_trace
 #
-# Emit a Devel::Datum trace, which will be a logwrite() on the 'debug' channel.
+# Emit a Carp::Datum trace, which will be a logwrite() on the 'debug' channel.
 #
 sub datum_trace {
 	my $self = shift;
 	my ($str, $tag) = @_;
-	require Devel::Datum;
-	Devel::Datum::trace($str, $tag);
+	require Carp::Datum;
+	Carp::Datum::trace($str, $tag);
 }
 
 #
@@ -138,7 +141,7 @@ sub logwrite {
 	#
 
 	my $pkg = caller(1);
-	if ($pkg =~ /^Devel::Datum\b/) {
+	if ($pkg =~ /^Carp::Datum\b/) {
 		my $drv = $self->driver;
 		return unless defined $drv;	# Can happen during global destruct
 		$drv->logwrite($chan, $prio, $level, $str);
@@ -157,7 +160,7 @@ __END__
 
 =head1 NAME
 
-Log::Agent::Driver::Datum - interceptor driver to cooperate with Devel::Datum
+Log::Agent::Driver::Datum - interceptor driver to cooperate with Carp::Datum
 
 =head1 SYNOPSIS
 
@@ -165,10 +168,10 @@ NONE
 
 =head1 DESCRIPTION
 
-The purpose of the interceptor is to cooperate with Devel::Datum by emitting
-traces to the debug channel via Devel::Datum's traces facilities.
+The purpose of the interceptor is to cooperate with Carp::Datum by emitting
+traces to the debug channel via Carp::Datum's traces facilities.
 
-This driver is automatically installed by Log::Agent when Devel::Datum is
+This driver is automatically installed by Log::Agent when Carp::Datum is
 in use and debug was activated through it.
 
 =head1 AUTHOR
@@ -177,7 +180,7 @@ Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
 
 =head1 SEE ALSO
 
-Devel::Datum(3).
+Carp::Datum(3).
 
 =cut
 

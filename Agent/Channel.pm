@@ -1,5 +1,5 @@
 #
-# $Id: Channel.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
+# $Id: Channel.pm,v 0.2.1.1 2001/03/31 10:00:11 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Channel.pm,v $
+# Revision 0.2.1.1  2001/03/31 10:00:11  ram
+# patch7: fixed =over to add explicit indent level
+#
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
@@ -108,7 +111,7 @@ that can be redirected to various places transparently for the application.
 The following channels are currently made available by C<Log::Agent>.  More
 channels can be defined by the C<Log::Agent::Logger> extension:
 
-=over
+=over 4
 
 =item Log::Agent::Channel::File
 
@@ -136,7 +139,7 @@ might be of interest.
 The following routines are B<deferred> and therefore need to be defined
 by the heir:
 
-=over
+=over 4
 
 =item write($priority, $logstring)
 

@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.2.1.4 2001/03/14 23:42:12 ram Exp $
+# $Id: Agent.pm,v 0.2.1.5 2001/03/31 09:59:42 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.2.1.5  2001/03/31 09:59:42  ram
+# patch7: massive renaming Devel::Datum -> Carp::Datum
+#
 # Revision 0.2.1.4  2001/03/14 23:42:12  ram
 # patch6: updated version number
 #
@@ -51,7 +54,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.206';
+$VERSION = '0.207';
 
 $Trace = NOTICE;	# Default tracing
 
@@ -183,9 +186,9 @@ sub inited {
 }
 
 #
-# DATUM_is_here		-- undocumented, but for Devel::Datum
+# DATUM_is_here		-- undocumented, but for Carp::Datum
 #
-# Tell Log::Agent that the Devel::Datum package was loaded and configured
+# Tell Log::Agent that the Carp::Datum package was loaded and configured
 # for debug.
 #
 # If there is a driver configured already, install the interceptor.
@@ -544,7 +547,7 @@ Here are valid I<message> examples:
 
 The follwing logging interface is made available to modules:
 
-=over
+=over 4
 
 =item logdbg I<priority>, I<message>
 
@@ -619,7 +622,7 @@ Modules sometimes wish to report errors from the perspective of their
 caller's caller, not really their caller.  The following interface is
 therefore provided:
 
-=over
+=over 4
 
 =item logxcarp I<offset>, I<message>
 
@@ -638,7 +641,7 @@ C<Log::Agent>, the following routine is provided.  Note that it is not
 imported by default, i.e. it needs to be explicitely mentionned at C<use>
 time, since it is not meant to be used directly under regular usage.
 
-=over
+=over 4
 
 =item logwrite I<channel>, I<priority>, I<message>
 
@@ -651,7 +654,7 @@ At the application level, one needs to commit once and for all about the
 logging scheme to be used. This is done thanks to the logconfig() routine
 which takes the following switches, in alphabetical order:
 
-=over
+=over 4
 
 =item C<-caller> => [ I<parameters> ]
 
@@ -746,7 +749,7 @@ When unspecified, C<Log::Agent> runs at the "notice" level.
 
 Additional routines, not exported by default, are:
 
-=over
+=over 4
 
 =item logtags
 
@@ -766,7 +769,7 @@ The following limitations exist in this early version. They might be
 addressed in future versions if they are perceived as annoying limitatons
 instead of being just documented ones. :-)
 
-=over
+=over 4
 
 =item *
 

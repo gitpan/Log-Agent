@@ -1,5 +1,5 @@
 #
-# $Id: Driver.pm,v 0.2.1.1 2000/11/12 14:45:13 ram Exp $
+# $Id: Driver.pm,v 0.2.1.2 2001/03/31 10:00:30 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,10 @@
 #
 # HISTORY
 # $Log: Driver.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:00:30  ram
+# patch7: fixed =over to add explicit indent level
+# patch7: massive renaming Devel::Datum -> Carp::Datum
+#
 # Revision 0.2.1.1  2000/11/12 14:45:13  ram
 # patch1: undef of $\ is now taken care of by channel classes
 #
@@ -376,7 +380,7 @@ common code in the ancestors without loosing specialization benefits.
 
 The following drivers are currently fully implemented:
 
-=over
+=over 4
 
 =item Log::Agent::Driver::Default
 
@@ -408,7 +412,7 @@ a few times.
 The following routines are B<deferred> and therefore need to be defined
 by the heir:
 
-=over
+=over 4
 
 =item channel_eq($chan1, $chan2)
 
@@ -416,7 +420,7 @@ Returns true when both channels $chan1 and $chan2 send their output to
 the same place.  The purpose is not to have a 100% accurate comparison,
 which is almost impossible for the Log::Agent::Driver::File driver,
 but to reasonably detect similarities to avoid duplicating messages to
-the same output when Devel::Datum is installed and activated.
+the same output when Carp::Datum is installed and activated.
 
 =item write($channel, $priority, $logstring)
 
@@ -478,7 +482,7 @@ implementation, most of the time.
 The order is not alphabetical here but by increased level of severity
 (as expected, anyway):
 
-=over
+=over 4
 
 =item logwrite($channel, $priority, $level, $str)
 
@@ -528,7 +532,7 @@ as argument.
 The following routines have a default implementation but may be redefined
 for specific drivers:
 
-=over
+=over 4
 
 =item emit($channel, $prio, $str)
 
@@ -550,7 +554,7 @@ The following routine is B<frozen>. There is no way in Perl to freeze a routine,
 i.e. to explicitely forbid any redefinition, so this is an informal
 notification:
 
-=over
+=over 4
 
 =item priority($priority)
 
@@ -569,7 +573,7 @@ Therefore, only map_pri() should be redefined.
 
 Finally, the following initialization routine is provided: to record the
 
-=over
+=over 4
 
 =item _init($prefix, $penalty)
 
@@ -586,6 +590,6 @@ Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
 =head1 SEE ALSO
 
 Log::Agent(3), Log::Agent::Driver::Default(3), Log::Agent::Driver::File(3),
-Log::Agent::Driver::Silent(3), Log::Agent::Driver::Syslog(3), Devel::Datum(3).
+Log::Agent::Driver::Silent(3), Log::Agent::Driver::Syslog(3), Carp::Datum(3).
 
 =cut

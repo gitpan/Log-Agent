@@ -1,5 +1,5 @@
 #
-# $Id: File.pm,v 0.2.1.1 2000/11/12 14:46:27 ram Exp $
+# $Id: File.pm,v 0.2.1.2 2001/03/31 10:01:07 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,10 @@
 #
 # HISTORY
 # $Log: File.pm,v $
+# Revision 0.2.1.2  2001/03/31 10:01:07  ram
+# patch7: fixed =over to add explicit indent level
+# patch7: massive renaming Devel::Datum -> Carp::Datum
+#
 # Revision 0.2.1.1  2000/11/12 14:46:27  ram
 # patch1: test for definedness in destructor
 #
@@ -172,7 +176,7 @@ sub chanfn {
 # It's hard to know for certain that two channels are equivalent, so we
 # compare filenames.  This is not correct, of course, but it will do for
 # what we're trying to achieve here, namely avoid duplicates if possible
-# when traces are remapped to Devel::Datum.
+# when traces are remapped to Carp::Datum.
 #
 sub channel_eq {
 	my $self = shift;
@@ -421,7 +425,7 @@ one per channel usually (but channels may go to the same file).
 
 The creation routine make() takes the following arguments:
 
-=over
+=over 4
 
 =item C<-channels> => I<hash ref>
 
