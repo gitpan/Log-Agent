@@ -1,3 +1,16 @@
+Tue Jul  4 22:03:04 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Forgot to increase version number at last patch.
+
+Tue Jul  4 22:01:55 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+. Description:
+
+	Was missing default init check before calling logwrite(),
+	resulting in a call on an undefined referenced in logtrc()
+	and logdbg() when no explicit configuration was otherwise made.
 Tue Jun 20 23:27:14 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.1.1.5 2000/06/20 21:21:45 ram Exp $
+# $Id: Agent.pm,v 0.1.1.7 2000/07/04 20:02:59 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,12 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.1.1.7  2000/07/04 20:02:59  ram
+# patch7: forgot to increase version number at last patch
+#
+# Revision 0.1.1.6  2000/07/04 20:00:55  ram
+# patch6: was missing default init check before calling logwrite()
+#
 # Revision 0.1.1.5  2000/06/20 21:21:45  ram
 # patch5: added logcroak()
 # patch5: new logwrite() routine for upper-level apps
@@ -53,7 +59,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 require Log::Agent::Message;
 
-$VERSION = '0.105';
+$VERSION = '0.107';
 
 ###
 ### Utilities
@@ -318,6 +324,7 @@ sub logtrc {
 	my ($prio, $level) = priority($id);
 	return if !defined($Trace) || $level > $Trace;
 	my $str = format_args(@args);
+	&log_default;
 	$Driver->logwrite('output', $prio, $level, $str);
 }
 
@@ -332,6 +339,7 @@ sub logdbg {
 	my ($prio, $level) = priority($id);
 	return if !defined($Debug) || $level > $Debug;
 	my $str = format_args(@args);
+	&log_default;
 	$Driver->logwrite('debug', $prio, $level, $str);
 }
 
@@ -349,6 +357,7 @@ sub logwrite {
 	my ($channel, $id, @args) = @_;
 	my ($prio, $level) = priority($id);
 	my $str = format_args(@args);
+	&log_default;
 	$Driver->logwrite($channel, $prio, $level, $str);
 }
 
