@@ -12,6 +12,7 @@ Agent/Driver/Datum.pm            Intercepting driver for Devel::Datum
 Agent/Driver/Default.pm          Default logging driver
 Agent/Driver/File.pm             File driver
 Agent/Driver/Fork.pm             Fork to split output to multiple drivers
+Agent/Driver/Mail.pm             Email driver
 Agent/Driver/Silent.pm           Silent driver
 Agent/Driver/Syslog.pm           Syslog driver
 Agent/File/Native.pm             A native file handle
@@ -39,6 +40,7 @@ t/default.t                      Test default settings and driver
 t/default_exp.t                  Test default settings, explicit logconfig()
 t/file.t                         Test file driver
 t/fork.t                         Test driver fork
+t/mail.t                         Test email driver
 t/priority.t                     Test -priority setting in logconfig()
 t/tag_callback.t                 Test log message tag via callback
 t/tag_string.t                   Test log message tag via string

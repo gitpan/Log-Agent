@@ -1,13 +1,25 @@
+###########################################################################
+# $Id: Driver.pm,v 1.3 2002/08/02 03:40:50 wendigo Exp $
+###########################################################################
 #
-# $Id: Driver.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
+# Log::Agent::Driver
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+# RCS Revision: $Revision: 1.3 $
+# Date: $Date: 2002/08/02 03:40:50 $
 #
-# HISTORY
+# Copyright (C) 1999 Raphael Manfredi.
+# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#
+# See the README file included with the
+# distribution for license information.
+#
 # $Log: Driver.pm,v $
+# Revision 1.3  2002/08/02 03:40:50  wendigo
+# expanded &Carp::shortmess workaround to include 5.8.0 behavior
+#
+# Revision 1.2  2002/05/10 05:02:56  wendigo
+# added a mention of Log::Agent::Driver::Fork
+#
 # Revision 1.1  2002/03/09 16:01:37  wendigo
 # New maintainer
 #
@@ -21,9 +33,8 @@
 # Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
-# $EndLog$
 #
-
+###########################################################################
 use strict;
 
 ########################################################################
@@ -36,12 +47,12 @@ package Log::Agent::Driver;
 #
 # Common attribute acccess, initialized via _init().
 #
-# prefix			the common (static) string info to prepend to messages
-# penalty			the skip Carp penalty to offset to the fixed one
+# prefix    the common (static) string info to prepend to messages
+# penalty   the skip Carp penalty to offset to the fixed one
 #
 
-sub prefix		{ $_[0]->{'prefix'} }
-sub penalty		{ $_[0]->{'penalty'} }
+sub prefix  { $_[0]->{'prefix'} }
+sub penalty { $_[0]->{'penalty'} }
 
 #
 # is_deferred
@@ -49,17 +60,17 @@ sub penalty		{ $_[0]->{'penalty'} }
 # Report routine as being deferred
 #
 sub is_deferred {
-	require Carp;
-	Carp::confess("deferred");
+    require Carp;
+    Carp::confess("deferred");
 }
 
 #
-# ->make			-- deferred
+# ->make -- deferred
 #
 # Creation routine.
 #
 sub make {
-	&is_deferred;
+    &is_deferred;
 }
 
 #
@@ -68,7 +79,7 @@ sub make {
 # Compare two channels and return true if they go to the same output.
 #
 sub channel_eq {
-	&is_deferred;
+    &is_deferred;
 }
 
 #
@@ -77,32 +88,32 @@ sub channel_eq {
 # Common initilization routine
 #
 sub _init {
-	my $self = shift;
-	my ($prefix, $penalty) = @_;
-	$self->{'prefix'} = $prefix;		# Prefix info to prepend
-	$self->{'penalty'} = $penalty;		# Carp stack skip penalty
+    my $self = shift;
+    my ($prefix, $penalty) = @_;
+    $self->{'prefix'} = $prefix;    # Prefix info to prepend
+    $self->{'penalty'} = $penalty;  # Carp stack skip penalty
 }
 
 #
-# ->add_penalty		-- "exported" only to Log::Agent::Driver::Datum
+# ->add_penalty        -- "exported" only to Log::Agent::Driver::Datum
 #
 # Add offset to current driver penalty
 #
 sub add_penalty {
-	my $self = shift;
-	my ($offset) = @_;
-	$self->{penalty} += $offset;
+    my $self = shift;
+    my ($offset) = @_;
+    $self->{penalty} += $offset;
 }
 
 my %level = (
-	'c' => 1,
-	'e' => 2,
-	'w' => 4,
-	'n' => 6,
+    'c' => 1,
+    'e' => 2,
+    'w' => 4,
+    'n' => 6,
 );
 
 #
-# ->priority		-- frozen
+# ->priority        -- frozen
 #
 # Return proper priority for emit() based on one of the following strings:
 # "critical", "error", "warning", "notice". Those correspond to the hardwired
@@ -112,14 +123,14 @@ my %level = (
 # Redefine map_pri() if needed, or don't call it in the first place.
 #
 sub priority {
-	my $self = shift;
-	my ($prio) = @_;
-	my $level = $level{lc(substr($prio, 0, 1))} || 8;
-	return $self->map_pri($prio, $level);
+    my $self = shift;
+    my ($prio) = @_;
+    my $level = $level{lc(substr($prio, 0, 1))} || 8;
+    return $self->map_pri($prio, $level);
 }
 
 #
-# ->write			-- deferred
+# ->write            -- deferred
 #
 # Write log entry, physically.
 # A trailing "\n" is to be added if needed.
@@ -128,27 +139,27 @@ sub priority {
 # where the emission of the log message should be done.
 #
 sub write {
-	my $self = shift;
-	my ($channel, $priority, $logstring) = @_;
-	&is_deferred;
+    my $self = shift;
+    my ($channel, $priority, $logstring) = @_;
+    &is_deferred;
 }
 
 #
-# ->emit			-- may be redefined
+# ->emit            -- may be redefined
 #
 # Routine to call to emit log, resolve priority and prefix logstring.
 # Ulitimately calls ->write() to perform the physical write.
 #
 sub emit {
-	my $self = shift;
-	my ($channel, $prio, $msg) = @_;
-	$self->write($channel, $self->priority($prio), $self->prefix_msg($msg));
-	return;
+    my $self = shift;
+    my ($channel, $prio, $msg) = @_;
+    $self->write($channel, $self->priority($prio), $self->prefix_msg($msg));
+    return;
 }
 
 
 #
-# ->map_pri			-- may be redefined
+# ->map_pri            -- may be redefined
 #
 # Convert a ("priority", level) tupple to a single priority token suitable
 # for `emit'.
@@ -164,13 +175,13 @@ sub emit {
 # concerned.
 #
 sub map_pri {
-	my $self = shift;
-	my ($priority, $level) = @_;
-	return '';		# ignored for basic drivers
+    my $self = shift;
+    my ($priority, $level) = @_;
+    return '';        # ignored for basic drivers
 }
 
 #
-# ->prefix_msg		-- deferred
+# ->prefix_msg        -- deferred
 #
 # Prefix message with driver-specific string, if necessary.
 #
@@ -178,9 +189,9 @@ sub map_pri {
 # static prefix or the process's pid.
 #
 sub prefix_msg {
-	my $self = shift;
-	my ($str) = @_;
-	&is_deferred;
+    my $self = shift;
+    my ($str) = @_;
+    &is_deferred;
 }
 
 #
@@ -191,71 +202,79 @@ sub prefix_msg {
 # according to our call stack configuration, plus any offset.
 #
 sub carpmess {
-	my $self = shift;
-	my ($offset, $str, $fn) = @_;
+    my $self = shift;
+    my ($offset, $str, $fn) = @_;
 
-	#
-	# While confessing, we have basically tell $fn() to skip 2 stack frames:
-	# this call, and our caller chain back to Log::Agent (calls within the
-	# same hierarchy are automatically stripped by Carp).
-	#
-	# To that, we add any additional penalty level, as told us by the creation
-	# routine of each driver, which accounts for extra levels used before
-	# calling us.
-	#
+    #
+    # While confessing, we have basically tell $fn() to skip 2 stack frames:
+    # this call, and our caller chain back to Log::Agent (calls within the
+    # same hierarchy are automatically stripped by Carp).
+    #
+    # To that, we add any additional penalty level, as told us by the creation
+    # routine of each driver, which accounts for extra levels used before
+    # calling us.
+    #
 
-	require Carp;
+    require Carp;
 
-	my $skip = $offset + 2 + $self->penalty;
-	$Carp::CarpLevel += $skip;
-	my $original = $str->str;		# Original user message
-	my $msg = &$fn($original);
-	$Carp::CarpLevel -= $skip;
+    my $skip = $offset + 2 + $self->penalty;
+    $Carp::CarpLevel += $skip;
+    my $original = $str->str;        # Original user message
+    my $msg = &$fn($original);
+    $Carp::CarpLevel -= $skip;
 
-	#
-	# If we have a newline in the message, we have a full stack trace.
-	# Replace the original message string with the first line, and
-	# append the remaining.
-	#
+    #
+    # If we have a newline in the message, we have a full stack trace.
+    # Replace the original message string with the first line, and
+    # append the remaining.
+    #
 
-	chomp($msg);					# Remove final "\n" added
-	if ($msg =~ s/^(.*?)\n//) {
-		my $first = $1;
+    chomp($msg);                    # Remove final "\n" added
+    if ($msg =~ s/^(.*?)\n//) {
+        my $first = $1;
 
-		#
-		# Patch incorrect computation by Carp, which occurs when we request
-		# a short message and we get a long one.  In that case, what we
-		# want is the first line of the extra message.
-		#
-		# This bug manifests when the whole call chain above Log::Agent
-		# lies in "main".  When objects are involved, it seems to work
-		# correctly.
-		#
-		# The kludge here is valid for perl 5.005_03.  If some day Carp is
-		# fixed, we will have to test for the Perl version.  The right fix,
-		# I believe, would be to have Carp skip frame first, and not last
-		# as it currently does.
-		#		-- RAM, 30/09/2000
-		#
+        #
+        # Patch incorrect computation by Carp, which occurs when we request
+        # a short message and we get a long one.  In that case, what we
+        # want is the first line of the extra message.
+        #
+        # This bug manifests when the whole call chain above Log::Agent
+        # lies in "main".  When objects are involved, it seems to work
+        # correctly.
+        #
+        # The kludge here is valid for perl 5.005_03.  If some day Carp is
+        # fixed, we will have to test for the Perl version.  The right fix,
+        # I believe, would be to have Carp skip frame first, and not last
+        # as it currently does.
+        #        -- RAM, 30/09/2000
+        #
 
-		if ($fn == \&Carp::shortmess) {				# Kludge alert!!
-			$first =~ s/(at (\S+) line \d+)$//;
-			my $bad = $1;
-			my @stack = split(/\n/, $msg);
-			my ($at) = $stack[0] =~ /(at \S+ line \d+)$/;
-			$at = "$bad (Log::Agent could not fix it)" unless $at;
-			$first .= $at;
-			$str->set_str($first);
-		} else {
-			$str->set_str($first);
-			$str->append_last("\n");
-			$str->append_last($msg);	# Stack at the very tail of message
-		}
-	} else {
-		$str->set_str($msg);		# Change original message inplace
-	}
+        if ($fn == \&Carp::shortmess) {                # Kludge alert!!
 
-	return $str;
+            #
+            # And things just got a little uglier with 5.8.0 
+            #
+            # -- mrogaski, 1 Aug 2002
+            #
+            my $index = $] >= 5.008 ? 1 : 0;
+
+            $first =~ s/(at (.+) line \d+)$//;
+            my $bad = $1;
+            my @stack = split(/\n/, $msg);
+            my ($at) = $stack[$index] =~ /(at \S+ line \d+)$/;
+            $at = "$bad (Log::Agent could not fix it)" unless $at;
+            $first .= $at;
+            $str->set_str($first);
+        } else {
+            $str->set_str($first);
+            $str->append_last("\n");
+            $str->append_last($msg);    # Stack at the very tail of message
+        }
+    } else {
+        $str->set_str($msg);        # Change original message inplace
+    }
+
+    return $str;
 }
 
 #
@@ -265,11 +284,11 @@ sub carpmess {
 # Error is logged, and then we confess.
 #
 sub logconfess {
-	my $self = shift;
-	my ($str) = @_;
-	my $msg = $self->carpmess(0, $str, \&Carp::longmess);
-	$self->emit('error', 'critical', $msg);
-	die "$msg\n";
+    my $self = shift;
+    my ($str) = @_;
+    my $msg = $self->carpmess(0, $str, \&Carp::longmess);
+    $self->emit('error', 'critical', $msg);
+    die "$msg\n";
 }
 
 #
@@ -279,11 +298,11 @@ sub logconfess {
 # Error is logged, and then we confess.
 #
 sub logxcroak {
-	my $self = shift;
-	my ($offset, $str) = @_;
-	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
-	$self->emit('error', 'critical', $msg);
-	die "$msg\n";
+    my $self = shift;
+    my ($offset, $str) = @_;
+    my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
+    $self->emit('error', 'critical', $msg);
+    die "$msg\n";
 }
 
 #
@@ -293,10 +312,10 @@ sub logxcroak {
 # Error is logged, and then we die.
 #
 sub logdie {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit('error', 'critical', $str);
-	die "$str\n";
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit('error', 'critical', $str);
+    die "$str\n";
 }
 
 #
@@ -305,9 +324,9 @@ sub logdie {
 # Log error
 #
 sub logerr {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit('error', 'error', $str);
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit('error', 'error', $str);
 }
 
 #
@@ -316,10 +335,10 @@ sub logerr {
 # Log warning, from the perspective of the caller.
 #
 sub logxcarp {
-	my $self = shift;
-	my ($offset, $str) = @_;
-	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
-	$self->emit('error', 'warning', $msg);
+    my $self = shift;
+    my ($offset, $str) = @_;
+    my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
+    $self->emit('error', 'warning', $msg);
 }
 
 #
@@ -328,9 +347,9 @@ sub logxcarp {
 # Log warning
 #
 sub logwarn {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit('error', 'warning', $str);
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit('error', 'warning', $str);
 }
 
 #
@@ -339,9 +358,9 @@ sub logwarn {
 # Log message at the "notice" level.
 #
 sub logsay {
-	my $self = shift;
-	my ($str) = @_;
-	$self->emit('output', 'notice', $str);
+    my $self = shift;
+    my ($str) = @_;
+    $self->emit('output', 'notice', $str);
 }
 
 #
@@ -350,13 +369,13 @@ sub logsay {
 # Emit the message to the specified channel
 #
 sub logwrite {
-	my $self = shift;
-	my ($chan, $prio, $level, $str) = @_;
-	$self->write($chan, $self->map_pri($prio, $level),
-		$self->prefix_msg($str));
+    my $self = shift;
+    my ($chan, $prio, $level, $str) = @_;
+    $self->write($chan, $self->map_pri($prio, $level),
+        $self->prefix_msg($str));
 }
 
-1;	# for require
+1;    # for require
 __END__
 
 =head1 NAME
@@ -474,7 +493,7 @@ the emit() wrapper (see below):
 
     sub logsay {
         my $self = shift;
-		my ($str) = @_;
+        my ($str) = @_;
         $self->emit('output', 'notice', $str);
     }
 
@@ -568,7 +587,7 @@ the hardwired priority strings, as documented above.
 It derives a logging level from the $priority given and then returns the
 result of:
 
-	map_pri($priority, $level);
+    map_pri($priority, $level);
 
 Therefore, only map_pri() should be redefined.
 
@@ -586,13 +605,23 @@ all the drivers.
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
+Originally written by Raphael Manfredi E<lt>Raphael_Manfredi@pobox.comE<gt>,
+currently maintained by Mark Rogaski E<lt>mrogaski@cpan.orgE<gt>.
+
+=head1 LICENSE
+
+  Copyright (C) 1999 Raphael Manfredi.
+  Copyright (C) 2002 Mark Rogaski; all rights reserved.
+
+See L<Log::Agent(3)> or the README file included with the distribution for
+license information.
 
 =head1 SEE ALSO
 
 Log::Agent(3), Log::Agent::Driver::Default(3), Log::Agent::Driver::File(3),
-Log::Agent::Driver::Silent(3), Log::Agent::Driver::Syslog(3), Carp::Datum(3).
+Log::Agent::Driver::Fork(3), Log::Agent::Driver::Silent(3),
+Log::Agent::Driver::Syslog(3), Carp::Datum(3).
 
 =cut

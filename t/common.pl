@@ -1,11 +1,11 @@
 ###########################################################################
-# $Id: common.pl,v 1.1 2002/02/23 06:26:10 wendigo Exp $
+# $Id: common.pl,v 1.2 2002/05/12 08:55:53 wendigo Exp $
 ###########################################################################
 #
 # common.pl
 #
-# RCS Revision: $Revision: 1.1 $
-# Date: $Date: 2002/02/23 06:26:10 $
+# RCS Revision: $Revision: 1.2 $
+# Date: $Date: 2002/05/12 08:55:53 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
 # Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
@@ -14,6 +14,9 @@
 # distribution for license information.
 #
 # $Log: common.pl,v $
+# Revision 1.2  2002/05/12 08:55:53  wendigo
+# added precompilation of regexp in contains()
+#
 # Revision 1.1  2002/02/23 06:26:10  wendigo
 # Initial revision
 #
@@ -22,6 +25,7 @@
 
 sub contains ($$) {
     my ($file, $pattern) = @_;
+    $pattern = qr{$pattern};
     local *FILE;
     local $_;
     open(FILE, $file) || die "can't open $file: $!\n";

@@ -1,3 +1,28 @@
+Thu Aug  1 23:44:06 EDT 2002   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.2
+
+        Expanded &Carp::shortmess workaround in Log::Agent::Driver to
+        handle behavior under Perl 5.8.0.
+
+Sun May 12 05:05:46 EDT 2002   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.1p2
+
+        Added prechecks for sprintf() arguments in Log::Agent::Formatting.
+
+        Added argument for Mail::Mailer options in
+        Log::Agent::Driver::Mail->make().
+
+Thu Apr 25 22:51:11 EDT 2002   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:  0.3.1p1
+
+        Added trial Log::Agent::Driver::Mail for sending log messages
+        via email.
+
+        Minor changes to version control.
+
 Mon Mar 18 13:15:38 EST 2002   Mark Rogaski <mrogaski@cpan.org>
 
 . Description:  0.3.1
@@ -23,179 +48,179 @@ Wed Apr 11 17:54:44 MEST 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Added hyperlinks within POD to ease web browsing of manpage.
+        Added hyperlinks within POD to ease web browsing of manpage.
 
-	Routines from Log::Agent::Priorities are now auto-loaded.
+        Routines from Log::Agent::Priorities are now auto-loaded.
 
-	Normalize priority string ("err" -> "error") when logging it,
-	Indeed, Log::Agent::Logger uses those routines but makes
-	strict use of syslog priority names.
+        Normalize priority string ("err" -> "error") when logging it,
+        Indeed, Log::Agent::Logger uses those routines but makes
+        strict use of syslog priority names.
 
 Sat Mar 31 12:03:15 MEST 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Massive renaming Devel::Datum -> Carp::Datum.
+        Massive renaming Devel::Datum -> Carp::Datum.
 
-	Fixed =over to add explicit indent level, for POD checkers.
+        Fixed =over to add explicit indent level, for POD checkers.
 
-	Fixed off-by-one error in prio_from_level(), which caused
-	improper conversion for level 10.
+        Fixed off-by-one error in prio_from_level(), which caused
+        improper conversion for level 10.
 
 Thu Mar 15 00:42:22 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Updated version number.
+        Updated version number.
 
 Thu Mar 15 00:41:24 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Forgot to handle -prefix in Log::Agent::Channel::Syslog.
+        Forgot to handle -prefix in Log::Agent::Channel::Syslog.
 
-	Was wrongly issuing test headers twice when skipping
-	the t/tag_callback.t tests.
+        Was wrongly issuing test headers twice when skipping
+        the t/tag_callback.t tests.
 
 Tue Mar 13 20:15:37 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Fixed typo in -priority documentation.
+        Fixed typo in -priority documentation.
 
-	Manual page for Log::Agent::Tag::Priority was irrelevant.
+        Manual page for Log::Agent::Tag::Priority was irrelevant.
 
 Tue Mar 13 19:52:02 MET 2001   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Added the -priority and -tags options to logconfig() for
-	including priority string in messages, as well as user-defined
-	tag strings.
+        Added the -priority and -tags options to logconfig() for
+        including priority string in messages, as well as user-defined
+        tag strings.
 
-	Test the ${line} variable substitution in caller formatting.
+        Test the ${line} variable substitution in caller formatting.
 
-	Fixed bug for *BSD systems, which caused the test suite to fail.
+        Fixed bug for *BSD systems, which caused the test suite to fail.
 
-	Class Log::Agent::Caller disappered, and is now replaced by
-	Log::Agent::Tag::Caller.
+        Class Log::Agent::Caller disappered, and is now replaced by
+        Log::Agent::Tag::Caller.
 
-	9 new files, 1 file suppressed.
+        9 new files, 1 file suppressed.
 
 Sun Nov 12 15:48:21 MET 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Version 0.2.1.
+        Version 0.2.1.
 
-	Minor typo fixes.
+        Minor typo fixes.
 
 Mon Nov  6 20:12:06 MET 2000    Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
-	Version 0.2.0
+        Version 0.2.0
 
-	Modularized the logging channels.  They have now their own hierarchy
-	under Log::Agent::Channel.
+        Modularized the logging channels.  They have now their own hierarchy
+        under Log::Agent::Channel.
 
-	Modularized priority, prefixing and timestamping routines, so that
-	they can be re-used by satellite Log::Agent modules.
+        Modularized priority, prefixing and timestamping routines, so that
+        they can be re-used by satellite Log::Agent modules.
 
-	Logging from Log::Agent is now subject to pruning depending on the
-	logging level set.  By default, it is "notice", so that even logsay()
-	is visible.
+        Logging from Log::Agent is now subject to pruning depending on the
+        logging level set.  By default, it is "notice", so that even logsay()
+        is visible.
 
 Sun Oct  1 22:05:51 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Version 0.1.8
+        Version 0.1.8
 
-	Added support for Devel::Datum.  This module is still under
-	development, but is already used in production system.
+        Added support for Devel::Datum.  This module is still under
+        development, but is already used in production system.
 
-	New logcarp, logxcarp and logxcroak interface.
+        New logcarp, logxcarp and logxcroak interface.
 
-	Fixed carpmess to work around Carp's incorrect offseting and
-	added a test suite for logcarp and logxcarp.
+        Fixed carpmess to work around Carp's incorrect offseting and
+        added a test suite for logcarp and logxcarp.
 
-	5 new files.
+        5 new files.
 
 Tue Jul  4 22:03:04 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Forgot to increase version number at last patch.
+        Forgot to increase version number at last patch.
 
 Tue Jul  4 22:01:55 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Was missing default init check before calling logwrite(),
-	resulting in a call on an undefined referenced in logtrc()
-	and logdbg() when no explicit configuration was otherwise made.
+        Was missing default init check before calling logwrite(),
+        resulting in a call on an undefined referenced in logtrc()
+        and logdbg() when no explicit configuration was otherwise made.
 Tue Jun 20 23:27:14 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Added logcroak(), to die from the perspective of the caller.
+        Added logcroak(), to die from the perspective of the caller.
 
-	New logwrite() routine for upper-level apps, which unconditionally
-	logs messages to a specified channel.
+        New logwrite() routine for upper-level apps, which unconditionally
+        logs messages to a specified channel.
 
-	Fixed arg processing to avoid dying on 2nd calls to logconfig().
+        Fixed arg processing to avoid dying on 2nd calls to logconfig().
 
-	Fixed typos in debug init and man page.
+        Fixed typos in debug init and man page.
 
-	Removed logtrc() and logdbg() from the driver interface: they are
-	now frozen in Log::Agent, and implemented in terms of logwrite(),
-	which may be redefined as suited.
+        Removed logtrc() and logdbg() from the driver interface: they are
+        now frozen in Log::Agent, and implemented in terms of logwrite(),
+        which may be redefined as suited.
 
 Thu Mar 30 21:25:23 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Forgot that /(?<!)/ is a 5.005 feature, fixed Agent/Caller.pm.
+        Forgot that /(?<!)/ is a 5.005 feature, fixed Agent/Caller.pm.
 
 Sun Mar  5 23:30:16 MET 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Added missing 1 for require and fixed typo in pod for
-	Log::Agent::Caller as was reported by many people.
+        Added missing 1 for require and fixed typo in pod for
+        Log::Agent::Caller as was reported by many people.
 
-	All .pm files now have an __END__ marker before the pod
-	section anyway, so that the Perl parser stops.
+        All .pm files now have an __END__ marker before the pod
+        section anyway, so that the Perl parser stops.
 
-	Added support for logfile rotation via Log::Agent::Rotate.
+        Added support for logfile rotation via Log::Agent::Rotate.
 
-	No longer uses IO::Handle but relies on the new
-	Log::Agent::File hierarch, to support logfile rotation.
-	Native Perl files are now handled via Log::Agent::File::Native.
+        No longer uses IO::Handle but relies on the new
+        Log::Agent::File hierarch, to support logfile rotation.
+        Native Perl files are now handled via Log::Agent::File::Native.
 
-	Suppressed blurb about the Linux bug since we workaround it by
-	creating a new separate default_exp.t test.
+        Suppressed blurb about the Linux bug since we workaround it by
+        creating a new separate default_exp.t test.
 
-	Three new files.
+        Three new files.
 
 Thu Dec  9 18:31:30 MET 1999   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Wrote two versions of format_args and eval proper one.
-	Indeed, perl-5.005 versions do not support /(?<!)/ and
-	this is parsed at compile time, hence we need to protect
-	the expression within an eval.
+        Wrote two versions of format_args and eval proper one.
+        Indeed, perl-5.005 versions do not support /(?<!)/ and
+        this is parsed at compile time, hence we need to protect
+        the expression within an eval.
 
 Wed Dec  8 22:53:27 MET 1999   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:
 
-	Forgot that /(?<!)/ is a 5.005 feature, fixed Agent.pm.
+        Forgot that /(?<!)/ is a 5.005 feature, fixed Agent.pm.
 
-	Mentions that perl 5.005 fails tests on Linux due to a perl or
-	glibc bug. It's only the test code that fails though.
+        Mentions that perl 5.005 fails tests on Linux due to a perl or
+        glibc bug. It's only the test code that fails though.
 
 Tue Dec  7 22:01:49 MET 1999  Raphael Manfredi <Raphael_Manfredi@pobox.com>
 . Description
 
-	Initial revision 0.1.
+        Initial revision 0.1.
