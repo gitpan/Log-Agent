@@ -1,0 +1,16 @@
+README                           The main README file
+MANIFEST                         This list
+ChangeLog                        List of changes
+Agent.pm                         Main agent
+Agent/Caller.pm                  Computes and formats caller information
+Agent/Driver.pm                  Ancestor for all drivers
+Agent/Driver/Default.pm          Default logging driver
+Agent/Driver/File.pm             File driver
+Agent/Driver/Silent.pm           Silent driver
+Agent/Driver/Syslog.pm           Syslog driver
+Agent/Message.pm                 A log message
+Makefile.PL                      Generic Makefile template
+patchlevel.h                     Records the current patchlevel
+t/code.pl                        Library for tests
+t/default.t                      Test default settings and driver
+t/file.t                         Test file driver
