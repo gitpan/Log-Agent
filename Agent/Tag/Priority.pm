@@ -1,5 +1,5 @@
 #
-# $Id: Priority.pm,v 0.2.1.2 2001/03/13 19:15:17 ram Exp $
+# $Id: Priority.pm,v 0.2.1.3 2001/04/11 15:52:46 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priority.pm,v $
+# Revision 0.2.1.3  2001/04/11 15:52:46  ram
+# patch8: normalize priority string ("err" -> "error")
+#
 # Revision 0.2.1.2  2001/03/13 19:15:17  ram
 # patch4: manual page was irrelevant
 #
@@ -28,6 +31,8 @@ package Log::Agent::Tag::Priority;
 require Log::Agent::Tag::String;
 use vars qw(@ISA);
 @ISA = qw(Log::Agent::Tag::String);
+
+use Log::Agent::Priorities qw(level_from_prio prio_from_level);
 
 #
 # ->make
@@ -66,6 +71,12 @@ sub make {
 		next unless ref $vset;
 		$$vset = $val;
 	}
+
+	#
+	# Normalize $priority to the full name (e.g. "err" -> "error")
+	#
+
+	$priority = prio_from_level level_from_prio $priority;
 
 	#
 	# Format according to -display specs.

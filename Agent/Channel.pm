@@ -1,5 +1,5 @@
 #
-# $Id: Channel.pm,v 0.2.1.1 2001/03/31 10:00:11 ram Exp $
+# $Id: Channel.pm,v 0.2.1.2 2001/04/11 15:51:10 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Channel.pm,v $
+# Revision 0.2.1.2  2001/04/11 15:51:10  ram
+# patch8: added hyperlinks within POD to ease web browsing of manpage
+#
 # Revision 0.2.1.1  2001/03/31 10:00:11  ram
 # patch7: fixed =over to add explicit indent level
 #
@@ -116,17 +119,19 @@ channels can be defined by the C<Log::Agent::Logger> extension:
 =item Log::Agent::Channel::File
 
 This channel writes logs to files, defined by their path or via a magical
-opening sequence such as "|cmd".
+opening sequence such as "|cmd".  See L<Log::Agent::Channel::File>.
 
 =item Log::Agent::Channel::Handle
 
 This channel writes logs to an already opened descriptor, as specified by its
 file handle: an IO::Handle object, or a GLOB reference such as \*FILE.
+See L<Log::Agent::Channel::Handle>.
 
 =item Log::Agent::Channel::Syslog
 
 This channel redirects logs to the syslogd(8) daemon, which will then handle
 the dispatching to various logfiles, based on its own configuration.
+See L<Log::Agent::Channel::Syslog>.
 
 =back
 
@@ -175,3 +180,4 @@ Log::Agent::Channel::File(3), Log::Agent::Channel::Handle(3),
 Log::Agent::Channel::Syslog(3), Log::Agent::Logger(3).
 
 =cut
+

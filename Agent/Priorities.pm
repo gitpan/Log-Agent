@@ -1,5 +1,5 @@
 #
-# $Id: Priorities.pm,v 0.2.1.2 2001/03/31 10:02:04 ram Exp $
+# $Id: Priorities.pm,v 0.2.1.3 2001/04/11 15:51:55 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,9 @@
 #
 # HISTORY
 # $Log: Priorities.pm,v $
+# Revision 0.2.1.3  2001/04/11 15:51:55  ram
+# patch8: routines are now auto-loaded
+#
 # Revision 0.2.1.2  2001/03/31 10:02:04  ram
 # patch7: fixed off-by-one error in prio_from_level()
 #
@@ -26,6 +29,7 @@ use strict;
 package Log::Agent::Priorities;
 
 require Exporter;
+use AutoLoader 'AUTOLOAD';
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS @LEVELS);
 @ISA = qw(Exporter);
 
@@ -49,7 +53,9 @@ BEGIN {
 	sub DEBUG ()	{10}
 }
 
-my @basic_prio = qw(
+use vars qw(@basic_prio %basic_level);
+
+@basic_prio = qw(
 	emergency
 	alert
 	critical
@@ -57,6 +63,20 @@ my @basic_prio = qw(
 	warning warning
 	notice notice
 	info info);
+
+%basic_level = (
+	'em'	=> EMERG,		# emergency
+	'al'	=> ALERT,		# alert
+	'cr'	=> CRIT,		# critical
+	'er'	=> ERROR,		# error
+	'wa'	=> WARN,		# warning
+	'no'	=> NOTICE,		# notice
+	'in'	=> INFO,		# info
+	'de'	=> DEBUG,		# debug
+);
+
+1;
+__END__
 
 #
 # prio_from_level
@@ -69,17 +89,6 @@ sub prio_from_level {
 	return 'debug' if $level >= @basic_prio;
 	return $basic_prio[$level];
 }
-
-my %basic_level = (
-	'em'	=> EMERG,		# emergency
-	'al'	=> ALERT,		# alert
-	'cr'	=> CRIT,		# critical
-	'er'	=> ERROR,		# error
-	'wa'	=> WARN,		# warning
-	'no'	=> NOTICE,		# notice
-	'in'	=> INFO,		# info
-	'de'	=> DEBUG,		# debug
-);
 
 #
 # level_from_prio
@@ -107,9 +116,6 @@ sub priority_level {
 	return ($1, $2) if $id =~ /^([^:]+):(\d+)$/;
 	return ($id, level_from_prio($id));
 }
-
-1;
-__END__
 
 =head1 NAME
 

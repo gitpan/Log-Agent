@@ -1,5 +1,5 @@
 #
-# $Id: Agent.pm,v 0.2.1.5 2001/03/31 09:59:42 ram Exp $
+# $Id: Agent.pm,v 0.2.1.6 2001/04/11 15:50:59 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,6 +8,10 @@
 #
 # HISTORY
 # $Log: Agent.pm,v $
+# Revision 0.2.1.6  2001/04/11 15:50:59  ram
+# patch8: added hyperlinks within POD to ease web browsing of manpage
+# patch8: updated version number
+#
 # Revision 0.2.1.5  2001/03/31 09:59:42  ram
 # patch7: massive renaming Devel::Datum -> Carp::Datum
 #
@@ -54,7 +58,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.207';
+$VERSION = '0.208';
 
 $Trace = NOTICE;	# Default tracing
 
@@ -447,7 +451,6 @@ sub prio_tag {
 	return $prio_cache{$prio, $level} = $ptag;
 }
 
-
 =head1 NAME
 
 Log::Agent - logging agent
@@ -660,14 +663,14 @@ which takes the following switches, in alphabetical order:
 
 Request that caller information (relative to the logxxx() call) be part
 of the log message. The given I<parameters> are handed off to the
-creation routine of Log::Agent::Tag::Caller(3) and are documented there.
+creation routine of C<Log::Agent::Tag::Caller> and are documented there.
 
 I usually say something like:
 
  -caller => [ -display => '($sub/$line)', -postfix => 1 ]
 
 which I find informative enough. On occasion, I found myself using more
-complex sequences.
+complex sequences.  See L<Log::Agent::Tag::Caller>.
 
 =item C<-confess> => I<flag>
 
@@ -712,7 +715,7 @@ that, obviously.
 
 Request that message priority information be part of the log message.
 The given I<parameters> are handed off to the
-creation routine of Log::Agent::Tag::Priority(3) and are documented there.
+creation routine of C<Log::Agent::Tag::Priority> and are documented there.
 
 I usually say something like:
 
@@ -720,6 +723,7 @@ I usually say something like:
 
 which will display the whole priority name at the beginning of the messages,
 e.g. "[warning]" for a logwarn() or "[error]" for logerr().
+See L<Log::Agent::Tag::Priority> and L<Log::Agent::Priorities>.
 
 B<NOTE>: Using C<-priority> does not prevent the C<-duperr> flag of
 the file driver to also add its own hardwired prefixing in front of
@@ -729,7 +733,7 @@ duplicated error messages.  The two options act at a different level.
 
 Specifies user-defined tags to be added to each message.  The objects
 given here must inherit from C<Log::Agent::Tag> and conform to its
-interface.  See Log::Agent::Tag(3) for details.
+interface.  See L<Log::Agent::Tag> for details.
 
 At runtime, well after logconfig() was issued, it may be desirable to
 add (or remove) a user tag.  Use the C<logtags()> routine for this purpose,
@@ -759,7 +763,8 @@ tags that are to be added to each log message.
 The initial list of tags is normally supplied by the application at
 logconfig() time, via the C<-tags> argument.  To add or remove tags after
 configuration time, one needs direct access to the tag list, obtained via
-this routine.
+this routine.  See L<Log::Agent::Tag_List> for the operations that can be
+performed.
 
 =back
 
