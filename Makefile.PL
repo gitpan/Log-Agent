@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 0.1 1999/12/07 21:09:44 ram Exp $
+# $Id: Makefile.PL,v 0.2 2000/11/06 19:30:32 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -7,8 +7,8 @@
 #
 # HISTORY
 # $Log: Makefile.PL,v $
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:32  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

@@ -1,3 +1,17 @@
+Mon Nov  6 20:12:06 MET 2000    Raphael Manfredi <Raphael_Manfredi@pobox.com>
+
+	Version 0.2.0
+
+	Modularized the logging channels.  They have now their own hierarchy
+	under Log::Agent::Channel.
+
+	Modularized priority, prefixing and timestamping routines, so that
+	they can be re-used by satellite Log::Agent modules.
+
+	Logging from Log::Agent is now subject to pruning depending on the
+	logging level set.  By default, it is "notice", so that even logsay()
+	is visible.
+
 Sun Oct  1 22:05:51 MEST 2000   Raphael Manfredi <Raphael_Manfredi@pobox.com>
 
 . Description:

@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: default_exp.t,v 0.1.1.1 2000/03/05 22:24:59 ram Exp $
+# $Id: default_exp.t,v 0.2 2000/11/06 19:30:34 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,11 +10,8 @@
 #
 # HISTORY
 # $Log: default_exp.t,v $
-# Revision 0.1.1.1  2000/03/05 22:24:59  ram
-# patch3: created
-#
-# Revision 0.1  1999/12/07 21:09:45  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:34  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -24,7 +21,7 @@
 # It was split to circumvent a Perl 5.005 or glibc bug on Linux platforms.
 #
 
-print "1..13\n";
+print "1..8\n";
 
 require 't/code.pl';
 sub ok;
@@ -54,17 +51,12 @@ close STDOUT;
 close STDERR;
 
 ok 2, contains("t/default.err", '^me: error$');
-ok 3, !contains("t/default.out", 'error');
-ok 4, contains("t/default.out", '^me: message$');
-ok 5, !contains("t/default.err", 'message');
-ok 6, contains("t/default.err", '^me: WARNING: warning$');
-ok 7, !contains("t/default.out", 'warning');
-ok 8, contains("t/default.err", '^me: die$');
-ok 9, !contains("t/default.out", 'die');
-ok 10, !contains("t/default.err", 'notice|info');
-ok 11, contains("t/default.out", '^me: notice$');
-ok 12, contains("t/default.out", '^me: debug-info$');
-ok 13, !contains("t/default.out", '^me: trace-info$');
+ok 3, contains("t/default.err", '^me: message$');
+ok 4, contains("t/default.err", '^me: WARNING: warning$');
+ok 5, contains("t/default.err", '^me: die$');
+ok 6, contains("t/default.err", '^me: debug-info$');
+ok 7, !contains("t/default.err", '^me: trace-info$');
+ok 8, 0 == -s "t/default.out";
 
 unlink 't/default.out', 't/default.err';
 

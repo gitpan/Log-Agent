@@ -1,5 +1,5 @@
 #
-# $Id: Message.pm,v 0.1.1.2 2000/10/01 20:00:06 ram Exp $
+# $Id: Message.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,14 +8,8 @@
 #
 # HISTORY
 # $Log: Message.pm,v $
-# Revision 0.1.1.2  2000/10/01 20:00:06  ram
-# patch8: added set_str, prepend_first and append_last
-#
-# Revision 0.1.1.1  2000/03/05 22:23:51  ram
-# patch3: added end marker before pod
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:33  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

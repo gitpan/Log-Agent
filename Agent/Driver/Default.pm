@@ -1,5 +1,5 @@
 #
-# $Id: Default.pm,v 0.1.1.3 2000/10/01 19:53:23 ram Exp $
+# $Id: Default.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,17 +8,8 @@
 #
 # HISTORY
 # $Log: Default.pm,v $
-# Revision 0.1.1.3  2000/10/01 19:53:23  ram
-# patch8: conforms to changes in driver interface
-#
-# Revision 0.1.1.2  2000/06/20 21:24:27  ram
-# patch5: logconfess() and logcroak() now use ->carpmess
-#
-# Revision 0.1.1.1  2000/03/05 22:22:02  ram
-# patch3: added end marker before pod
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:32  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -42,9 +33,7 @@ sub make {
 	my $self = bless {}, shift;
 	my ($prefix) = @_;
 	$self->_init($prefix, 0);					# 0 is the skip Carp penalty
-	my $orig = select(main::STDOUT); $| = 1;	# Autoflush
-	select(main::STDERR); $| = 1;
-	select($orig);
+	select((select(main::STDERR), $| = 1)[0]);	# Autoflush
 	return $self;
 }
 
@@ -63,28 +52,22 @@ sub prefix_msg {
 }
 
 #
-# ->emit			-- defined
+# ->write			-- defined
 #
-sub emit {
+sub write {
 	my $self = shift;
 	my ($channel, $priority, $logstring) = @_;
-	local $\ = undef;
-	my $fd = ($channel eq 'error') ? \*main::STDERR : \*main::STDOUT;
-	print $fd "$logstring\n";
+	print main::STDERR "$logstring\n";
 }
 
 #
 # ->channel_eq		-- defined
 #
-# Redirect comparison to driver.
+# All channels equals here
 #
 sub channel_eq {
 	my $self = shift;
-	my ($chan1, $chan2) = @_;
-	return 1 if $chan1 eq $chan2;
-	return 1 if $chan1 eq 'debug' && $chan2 eq 'output';
-	return 1 if $chan1 eq 'output' && $chan2 eq 'debug';
-	return 0;
+	return 1;
 }
 
 #
@@ -200,8 +183,7 @@ string will be uppercased.
 
 =head1 CHANNELS
 
-The C<error> channel goes to STDERR, the C<output> and C<debug> channels
-to STDOUT.
+The C<error>, C<output> and C<debug> channels all go to STDERR.
 
 =head1 BUGS
 

@@ -1,5 +1,5 @@
 #
-# $Id: Caller.pm,v 0.1.1.3 2000/10/01 19:49:52 ram Exp $
+# $Id: Caller.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,17 +8,8 @@
 #
 # HISTORY
 # $Log: Caller.pm,v $
-# Revision 0.1.1.3  2000/10/01 19:49:52  ram
-# patch8: fixed typo
-#
-# Revision 0.1.1.2  2000/03/30 19:24:55  ram
-# patch4: forgot that /(?<!)/ is a 5.005 feature
-#
-# Revision 0.1.1.1  2000/03/05 22:21:46  ram
-# patch3: added missing 1 for require and fixed typo in pod
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:32  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

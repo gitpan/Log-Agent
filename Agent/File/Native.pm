@@ -1,5 +1,5 @@
 #
-# $Id: Native.pm,v 0.1.1.1 2000/03/05 22:23:37 ram Exp $
+# $Id: Native.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,8 +8,8 @@
 #  
 # HISTORY
 # $Log: Native.pm,v $
-# Revision 0.1.1.1  2000/03/05 22:23:37  ram
-# patch3: created
+# Revision 0.2  2000/11/06 19:30:33  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -22,7 +22,8 @@ package Log::Agent::File::Native;
 #
 # A native Perl filehandle.
 #
-# I'm no longer using the IO::* hierarchy because it is useless.
+# I'm no longer using the IO::* hierarchy because it is not adapted
+# to what we're trying to achieve here.
 #
 
 #
@@ -46,6 +47,24 @@ sub make {
 sub print {
 	my $glob = shift;
 	return CORE::print $glob @_;
+}
+
+#
+# ->close
+#
+# Close file.
+#
+sub close {
+	my $glob = shift;
+	CORE::close $glob;
+}
+
+#
+# ->DESTROY
+#
+sub DESTROY {
+	my $glob = shift;
+	CORE::close $glob;
 }
 
 1;	# for require

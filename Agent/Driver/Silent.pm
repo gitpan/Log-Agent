@@ -1,5 +1,5 @@
 #
-# $Id: Silent.pm,v 0.1.1.3 2000/10/01 19:53:23 ram Exp $
+# $Id: Silent.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,17 +8,8 @@
 #
 # HISTORY
 # $Log: Silent.pm,v $
-# Revision 0.1.1.3  2000/10/01 19:53:23  ram
-# patch8: conforms to changed driver interface
-#
-# Revision 0.1.1.2  2000/06/20 21:25:25  ram
-# patch5: added empty logwrite() and new logcroak()
-#
-# Revision 0.1.1.1  2000/03/05 22:23:29  ram
-# patch3: added end marker before pod
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:33  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

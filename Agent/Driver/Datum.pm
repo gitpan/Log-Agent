@@ -1,5 +1,5 @@
 #
-# $Id: Datum.pm,v 0.1.1.1 2000/10/01 19:53:02 ram Exp $
+# $Id: Datum.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,8 +8,8 @@
 #
 # HISTORY
 # $Log: Datum.pm,v $
-# Revision 0.1.1.1  2000/10/01 19:53:02  ram
-# patch8: created.
+# Revision 0.2  2000/11/06 19:30:32  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -79,15 +79,15 @@ sub datum_trace {
 }
 
 #
-# ->intercept
+# intercept
 #
 # Intercept call to driver by calling ->datum_trace() first, then resume
 # regular operation on the driver, if the channel where message would go
 # is not the same as the debug channel.
 #
 sub intercept {
-	my $self = shift;
 	my ($aref, $tag, $op, $chan, $prepend) = @_;
+	my $self = shift @$aref;
 
 	#
 	# $aref can be [$str] or [$offset, $str]
@@ -100,7 +100,11 @@ sub intercept {
 	}
 	$self->datum_trace($pstr, $tag);
 	my $driver = $self->driver;
-	$driver->$op(@$aref) unless $driver->channel_eq('debug', $chan);
+	if ($driver->channel_eq('debug', $chan)) {
+		die "$pstr\n" if $prepend eq 'FATAL';
+	} else {
+		$driver->$op(@$aref);
+	}
 }
 
 #
@@ -146,7 +150,7 @@ sub logwrite {
 	# cut the recursion.
 	#
 
-	$self->intercept([$str], '>>', 'logwrite', $chan);
+	intercept([$self, $str], '>>', 'logwrite', $chan);
 }
 
 __END__

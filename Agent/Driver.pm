@@ -1,5 +1,5 @@
 #
-# $Id: Driver.pm,v 0.1.1.3 2000/10/01 19:52:58 ram Exp $
+# $Id: Driver.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,21 +8,8 @@
 #
 # HISTORY
 # $Log: Driver.pm,v $
-# Revision 0.1.1.3  2000/10/01 19:52:58  ram
-# patch8: interface now implements logxcroak instead of logcroak
-# patch8: added logxcarp, add_penalty and channel_eq to interface
-# patch8: fixed carpmess to work around Carp's incorrect offseting
-#
-# Revision 0.1.1.2  2000/06/20 21:23:26  ram
-# patch5: removed logtrc() and logdbg() from interface
-# patch5: superseded by logwrite(), above routines now frozen
-# patch5: added carpmess() and the penalty attribute
-#
-# Revision 0.1.1.1  2000/03/05 22:21:58  ram
-# patch3: added end marker before pod
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:32  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -122,20 +109,34 @@ sub priority {
 }
 
 #
-# ->emit			-- deferred
+# ->write			-- deferred
 #
-# Emit log entry, physically.
+# Write log entry, physically.
 # A trailing "\n" is to be added if needed.
 #
 # $channel is one of 'debug', 'output', 'error' and can be used to determine
 # where the emission of the log message should be done.
 #
-sub emit {
+sub write {
 	my $self = shift;
 	my ($channel, $priority, $logstring) = @_;
-	local $\ = undef;
 	&is_deferred;
 }
+
+#
+# ->emit			-- may be redefined
+#
+# Routine to call to emit log, resolve priority and prefix logstring.
+# Ulitimately calls ->write() to perform the physical write.
+#
+sub emit {
+	my $self = shift;
+	my ($channel, $prio, $msg) = @_;
+	local $\ = undef;
+	$self->write($channel, $self->priority($prio), $self->prefix_msg($msg));
+	return;
+}
+
 
 #
 # ->map_pri			-- may be redefined
@@ -258,9 +259,7 @@ sub logconfess {
 	my $self = shift;
 	my ($str) = @_;
 	my $msg = $self->carpmess(0, $str, \&Carp::longmess);
-	$self->emit('error',
-		$self->priority('critical'),
-		$self->prefix_msg($msg));
+	$self->emit('error', 'critical', $msg);
 	die "$msg\n";
 }
 
@@ -274,9 +273,7 @@ sub logxcroak {
 	my $self = shift;
 	my ($offset, $str) = @_;
 	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
-	$self->emit('error',
-		$self->priority('critical'),
-		$self->prefix_msg($msg));
+	$self->emit('error', 'critical', $msg);
 	die "$msg\n";
 }
 
@@ -289,9 +286,7 @@ sub logxcroak {
 sub logdie {
 	my $self = shift;
 	my ($str) = @_;
-	$self->emit('error',
-		$self->priority('critical'),
-		$self->prefix_msg($str));
+	$self->emit('error', 'critical', $str);
 	die "$str\n";
 }
 
@@ -303,9 +298,7 @@ sub logdie {
 sub logerr {
 	my $self = shift;
 	my ($str) = @_;
-	$self->emit('error',
-		$self->priority('error'),
-		$self->prefix_msg($str));
+	$self->emit('error', 'error', $str);
 }
 
 #
@@ -317,9 +310,7 @@ sub logxcarp {
 	my $self = shift;
 	my ($offset, $str) = @_;
 	my $msg = $self->carpmess($offset, $str, \&Carp::shortmess);
-	$self->emit('error',
-		$self->priority('warning'),
-		$self->prefix_msg($msg));
+	$self->emit('error', 'warning', $msg);
 }
 
 #
@@ -330,22 +321,18 @@ sub logxcarp {
 sub logwarn {
 	my $self = shift;
 	my ($str) = @_;
-	$self->emit('error',
-		$self->priority('warning'),
-		$self->prefix_msg($str));
+	$self->emit('error', 'warning', $str);
 }
 
 #
 # logsay
 #
-# Unconditionally log message
+# Log message at the "notice" level.
 #
 sub logsay {
 	my $self = shift;
 	my ($str) = @_;
-	$self->emit('output',
-		$self->priority('notice'),
-		$self->prefix_msg($str));
+	$self->emit('output', 'notice', $str);
 }
 
 #
@@ -356,78 +343,8 @@ sub logsay {
 sub logwrite {
 	my $self = shift;
 	my ($chan, $prio, $level, $str) = @_;
-	$self->emit($chan,
-		$self->map_pri($prio, $level),
+	$self->write($chan, $self->map_pri($prio, $level),
 		$self->prefix_msg($str));
-}
-
-###
-### Common time-stamping routines
-###
-
-my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-my @days = qw(Sun Mon Tue Wed Thu Fri Sat);
-
-#
-# stamp_none
-#
-# No timestamp
-#
-sub stamp_none {
-	return '';
-}
-
-#
-# stamp_syslog
-#
-# Syslog-like stamping: "Oct 27 21:09:33"
-#
-sub stamp_syslog {
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	return sprintf "%s %2d %.2d:%.2d:%.2d",
-		$months[$mon], $mday, $hour, $min, $sec;
-}
-
-#
-# stamp_date
-#
-# Date format: "[Fri Oct 22 16:23:10 1999]"
-#
-sub stamp_date {
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	return sprintf "[%s %s %2d %.2d:%.2d:%.2d %d]",
-		$days[$wday], $months[$mon], $mday, $hour, $min, $sec, 1900 + $year;
-}
-
-#
-# stamp_own
-#
-# Own format: "99/10/24 09:43:49"
-#
-sub stamp_own {
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	return sprintf "%.2d/%.2d/%.2d %.2d:%.2d:%.2d",
-		$year % 100, ++$mon, $mday, $hour, $min, $sec;
-}
-
-my %stamping = (
-	'none'		=> \&stamp_none,
-	'syslog'	=> \&stamp_syslog,
-	'date'		=> \&stamp_date,
-	'own'		=> \&stamp_own,
-);
-
-#
-# ->stamping_fn
-#
-# Return proper time stamping function based on its 'tag' (would be stamp_tag).
-# If tag is unknown, use stamp_own.
-#
-sub stamping_fn {
-	my $self = shift;
-	my ($tag) = @_;
-	return $stamping{$tag} if defined $tag && defined $stamping{$tag};
-	return \&stamp_own;
 }
 
 1;	# for require
@@ -482,6 +399,10 @@ the dispatching to various logfiles, based on its own configuration.
 
 =head1 INTERFACE
 
+You need not read this section if you're only B<using> Log::Agent.  However,
+if you wish to B<implement> another driver, then you should probably read it
+a few times.
+
 The following routines are B<deferred> and therefore need to be defined
 by the heir:
 
@@ -495,7 +416,7 @@ which is almost impossible for the Log::Agent::Driver::File driver,
 but to reasonably detect similarities to avoid duplicating messages to
 the same output when Devel::Datum is installed and activated.
 
-=item emit($channel, $priority, $logstring)
+=item write($channel, $priority, $logstring)
 
 Emit the log entry held in $logstring, at priority $priority and through
 the specfied $channel name. A trailing "\n" is to be added if needed, but the
@@ -534,21 +455,18 @@ to choose one good default. And I like making things explicit sometimes.
 
 =back
 
-The following routines are implemented in terms of emit(), map_pri()
+The following routines are implemented in terms of write(), map_pri()
 and prefix_msg(). The default implementation may need to be redefined for
-performance or tuning reasons, but simply defining the two deferred routines
-above should bring a reasonable behaviour nonetheless.
+performance or tuning reasons, but simply defining the deferred routines
+above should bring a reasonable behaviour.
 
-As an example, here is the default logdbg() implementation:
+As an example, here is the default logsay() implementation, which uses
+the emit() wrapper (see below):
 
-    sub logdbg {
+    sub logsay {
         my $self = shift;
-        my ($prio, $level, $str) = @_;
-        $self->emit(
-            'debug',
-            $self->map_pri($prio, $level),
-            $self->prefix_msg($str)
-        );
+		my ($str) = @_;
+        $self->emit('output', 'notice', $str);
     }
 
 Yes, we do show the gory details in a manpage, but inheriting from a class
@@ -605,10 +523,18 @@ as argument.
 
 =back
 
-The following routine has a default implementation but may be redefined
+The following routines have a default implementation but may be redefined
 for specific drivers:
 
 =over
+
+=item emit($channel, $prio, $str)
+
+This is a convenient wrapper that resets $\ to C<undef> and calls:
+
+ write($channel, $self->priority($prio), $self->prefix_msg($str))
+
+Since the default log
 
 =item map_pri($priority, $level)
 
@@ -639,16 +565,15 @@ Therefore, only map_pri() should be redefined.
 
 =back
 
-Finally, the following initialization routine is provided, to record the
-C<prefix> attribute:
+Finally, the following initialization routine is provided: to record the
 
 =over
 
-=item _init($prefix)
+=item _init($prefix, $penalty)
 
-Records the C<prefix> attribute.  Should be called in the constructor of
-all the drivers that need to know about a prefix string to prepend to
-logged messages.
+Records the C<prefix> attribute, as well as the Carp C<penalty> (amount
+of extra stack frames to skip). Should be called in the constructor of
+all the drivers.
 
 =back
 

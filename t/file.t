@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: file.t,v 0.1.1.1 2000/03/05 22:25:25 ram Exp $
+# $Id: file.t,v 0.2 2000/11/06 19:30:34 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,11 +10,8 @@
 #
 # HISTORY
 # $Log: file.t,v $
-# Revision 0.1.1.1  2000/03/05 22:25:25  ram
-# patch3: rewritten to use the new ok() routine
-#
-# Revision 0.1  1999/12/07 21:09:45  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:34  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

@@ -1,4 +1,4 @@
-                           Log::Agent 0.1
+                           Log::Agent 0.2
                Copyright (c) 1999-2000, Raphael Manfredi
 
 ------------------------------------------------------------------------
@@ -16,17 +16,7 @@
 
 Name           DSLI  Description                                  Info
 -----------    ----  -------------------------------------------- -----
-Log::Agent     adpr  A general logging framework                  RAM
-::Driver       ----  Ancestor class for all Log::Agent drivers    RAM
-::Caller       ----  Fetch and format caller information          RAM
-::Message      ----  A log message with append/prepend routines   RAM
-Log::Agent::Driver
-::Default      ----  The default logging driver                   RAM
-::File         ----  Log messages redirected to files             RAM
-::Silent       ----  Silence all the log messages                 RAM
-::Syslog       ----  Redirects all messages to Sys::Syslog        RAM
-Log::Agent::File
-::Native       ----  A native logfile (a plain Perl file)         RAM
+Log::Agent     adpO  A general logging framework                  RAM
 
 SYNOPSIS
 

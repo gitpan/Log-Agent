@@ -1,5 +1,5 @@
 #
-# $Id: Syslog.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
+# $Id: Syslog.pm,v 0.2 2000/11/06 19:30:32 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,31 +8,31 @@
 #
 # HISTORY
 # $Log: Syslog.pm,v $
-# Revision 0.2  2000/11/06 19:30:33  ram
+# Revision 0.2  2000/11/06 19:30:32  ram
 # Baseline for second Alpha release.
 #
 # $EndLog$
 #
 
 use strict;
+require Log::Agent::Channel;
 
 ########################################################################
-package Log::Agent::Driver::Syslog;
+package Log::Agent::Channel::Syslog;
 
-require Log::Agent::Driver;
 use vars qw(@ISA);
-@ISA = qw(Log::Agent::Driver);
+@ISA = qw(Log::Agent::Channel);
 
-require Log::Agent::Channel::Syslog;
+use Sys::Syslog qw(:DEFAULT setlogsock);
 
 #
 # ->make			-- defined
 #
 # Creation routine.
 #
-# All switches are passed to Log::Agent::Channel::Syslog.
+# Attributes (and switches that set them):
 #
-# prefix		the application name
+# prefix		the logging prefix to use (application name, usally)
 # facility		the syslog facility name to use ("auth", "daemon", etc...)
 # showpid		whether to show pid
 # socktype		socket type ('unix' or 'inet')
@@ -45,71 +45,69 @@ sub make {
 
 	my %set = (
 		-prefix		=> \$prefix,				# Handled by parent via _init
+		-facility	=> \$self->{'facility'},
+		-showpid	=> \$self->{'showpid'},
+		-socktype	=> \$self->{'socktype'},
+		-logopt		=> \$self->{'logopt'},
 	);
 
 	while (my ($arg, $val) = each %args) {
 		my $vset = $set{lc($arg)};
-		next unless ref $vset;
+		unless (ref $vset) {
+			require Carp;
+			Carp::croak("Unknown switch $arg");
+		}
 		$$vset = $val;
 	}
 
-	$self->{channel} = Log::Agent::Channel::Syslog->make(@_);
-	$self->_init($prefix, 0);					# 0 is the skip Carp penalty
+	$self->{'logopt'} =~ s/\bpid\b//g;			# Must use showpid => 1
+	$self->{'logopt'} .= ' pid' if $self->showpid;
+
 	return $self;
 }
 
-sub channel		{ $_[0]->{channel} }
+#
+# Attribute access
+#
+
+sub facility	{ $_[0]->{'facility'} || 'user' }
+sub showpid		{ $_[0]->{'showpid'} }
+sub socktype	{ $_[0]->{'socktype'} }
+sub logopt		{ $_[0]->{'logopt'} }
+sub connected	{ $_[0]->{'connected'} }
 
 #
-# ->prefix_msg		-- defined
+# ->connect
 #
-# NOP -- syslog will handle this
+# Connect to syslogd.
 #
-sub prefix_msg {
+sub connect {
 	my $self = shift;
-	return $_[0];
+	setlogsock $self->socktype if $self->socktype;
+	openlog $self->prefix, $self->logopt, $self->facility;
+	$self->{'connected'}++;
 }
 
 #
-# ->channel_eq		-- defined
+# ->close			-- defined
 #
-# Always true.
+# Disconnect from syslogd.
 #
-sub channel_eq {
-	return 1;
-}
-
-my %syslog_pri = (
-	'em' => 'emerg',
-	'al' => 'alert',
-	'cr' => 'crit',
-	'er' => 'err',
-	'wa' => 'warning',
-	'no' => 'notice',
-	'in' => 'info',
-	'de' => 'debug'
-);
-
-#
-# ->map_pri			-- redefined
-#
-# Levels ignored, only priorities matter.
-#
-sub map_pri {
+sub disconnect {
 	my $self = shift;
-	my ($priority, $level) = @_;
-	return $syslog_pri{lc(substr($priority, 0, 2))} || 'debug';
+	return unless $self->connected;
+	closelog;
+	$self->{'connected'} = 0;
 }
 
 #
 # ->write			-- defined
 #
-# $channel is ignored
-#
 sub write {
 	my $self = shift;
-	my ($channel, $priority, $logstring) = @_;
-	$self->channel->write($priority, $logstring);
+	my ($priority, $logstring) = @_;
+	$self->connect unless $self->connected;
+	syslog $priority, "%s", $logstring;
 }
 
 1;	# for require
@@ -117,26 +115,25 @@ __END__
 
 =head1 NAME
 
-Log::Agent::Driver::Syslog - syslog logging driver for Log::Agent
+Log::Agent::Channel::Syslog - syslog logging channel for Log::Agent::Logger
 
 =head1 SYNOPSIS
 
- use Log::Agent;
- require Log::Agent::Driver::Syslog;
+ require Log::Agent::Channel::Syslog;
 
- my $driver = Log::Agent::Driver::Syslog->make(
+ my $channel = Log::Agent::Channel::Syslog->make(
+     # Specific attributes
      -prefix     => prefix,
      -facility   => "user",
      -showpid    => 1,
      -socktype   => "unix",
      -logopt     => "ndelay",
  );
- logconfig(-driver => $driver);
 
 =head1 DESCRIPTION
 
-The syslog logging driver delegates logxxx() operations to syslog() via
-the Sys::Syslog(3) interface.
+The syslog logging channels directs operations to syslog() via the
+Sys::Syslog(3) interface.
 
 The creation routine make() takes the following switches:
 
@@ -146,11 +143,7 @@ The creation routine make() takes the following switches:
 
 Tell syslog() which facility to use (e.g. "user", "auth", "daemon").
 Unlike the Sys::Syslog(3) interface, the facility is set once and for all:
-every logging message will use the same facility.
-
-If you wish to log something to "auth" for instance, then do so via
-Sys::Syslog directly: there is no guarantee that the application will configure
-its Log::Agent to use syslog anyway!
+every message logged through this channel will use the same facility.
 
 =item C<-logopt> => I<syslog options>
 
@@ -172,16 +165,12 @@ use Sys:Syslog's default.
 
 =back
 
-=head1 CHANNELS
-
-All the channels go to syslog(), of course.
-
 =head1 AUTHOR
 
 Raphael Manfredi F<E<lt>Raphael_Manfredi@pobox.comE<gt>>
 
 =head1 SEE ALSO
 
-Log::Agent::Driver(3), Log::Agent::Channel::Syslog(3).
+Log::Agent::Logger(3).
 
 =cut

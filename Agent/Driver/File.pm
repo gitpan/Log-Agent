@@ -1,5 +1,5 @@
 #
-# $Id: File.pm,v 0.1.1.3 2000/10/01 19:53:23 ram Exp $
+# $Id: File.pm,v 0.2 2000/11/06 19:30:33 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,19 +8,8 @@
 #
 # HISTORY
 # $Log: File.pm,v $
-# Revision 0.1.1.3  2000/10/01 19:53:23  ram
-# patch8: conforms to new driver interface
-#
-# Revision 0.1.1.2  2000/06/20 21:25:01  ram
-# patch5: added logcroak()
-#
-# Revision 0.1.1.1  2000/03/05 22:23:22  ram
-# patch3: added end marker before pod
-# patch3: no longer uses IO::Handle but relies on Log::Agent::File
-# patch3: added support for logfile rotation via Log::Agent::Rotate
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:33  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -34,10 +23,6 @@ package Log::Agent::Driver::File;
 use vars qw(@ISA);
 
 @ISA = qw(Log::Agent::Driver);
-
-require Log::Agent::File::Native;
-use Symbol;
-use Fcntl;
 
 #
 # ->make			-- defined
@@ -60,10 +45,7 @@ use Fcntl;
 #
 # Other attributes:
 #
-# channel_fds	file descriptors for opened channels
-# warned        records calls made to hardwired warn() to only do them once
-# opath         records path -> Log::Agent::File objects
-# rpath         records path -> rotation policies
+# channel_obj	opened channel objects
 #
 sub make {
 	my $self = bless {}, shift;
@@ -104,20 +86,10 @@ sub make {
 		$self->{'duperr'} = 0;
 	}
 
-	#
-	# Initialize proper time-stamping routine.
-	#
-
-	$self->{'stampfmt'} = $self->stamping_fn($self->stampfmt)
-		unless ref $self->stampfmt eq 'CODE';
-
 	$self->_init($prefix, 0);		# 1 is the skip Carp penalty for confess
 
 	$self->{'channels'} = {} unless $self->channels;	# No defined channel
-	$self->{'channel_fds'} = {};						# No opened files
-	$self->{'opath'} = {};								# Idem
-	$self->{'rpath'} = {};								# Idem
-	$self->{'warned'} = {};								# No warning yet
+	$self->{'channel_obj'} = {};						# No opened files
 
 	#
 	# Check for logfile rotation, which can be specified on a global or
@@ -153,53 +125,20 @@ sub make {
 
 sub duperr		{ $_[0]->{'duperr'} }
 sub channels	{ $_[0]->{'channels'} }
-sub channel_fds	{ $_[0]->{'channel_fds'} }
+sub channel_obj	{ $_[0]->{'channel_obj'} }
 sub stampfmt	{ $_[0]->{'stampfmt'} }
 sub showpid		{ $_[0]->{'showpid'} }
 sub magic_open	{ $_[0]->{'magic_open'} }
-sub warned		{ $_[0]->{'warned'} }
 sub rotate		{ $_[0]->{'rotate'} }
-sub opath		{ $_[0]->{'opath'} }
-sub rpath		{ $_[0]->{'rpath'} }
 
 #
 # ->prefix_msg		-- defined
 #
-# Prepend stamping and "prefix: " to the error string, if needed.
-# Leading char is upper-cased if neither prefix nor pid are present.
+# NOP: channel handles prefixing for us.
 #
 sub prefix_msg {
 	my $self = shift;
-	my ($str) = @_;
-	my $prefix = $self->prefix;
-	$prefix = '' unless defined $prefix;
-	if ($self->showpid) {
-		if ($prefix eq '') {
-			$prefix = $$;
-		} else {
-			$prefix .= "[$$]";
-		}
-	} elsif ($prefix eq '') {
-		$str = ucfirst($str);
-	}
-	my $stamp = &{$self->stampfmt};
-	return
-		($stamp eq '' ? '' : "$stamp ") . 
-		($prefix eq '' ? '' : "$prefix: ") .
-		$str;
-}
-
-#
-# ->chanfd
-#
-# Return channel $fd object (one of the Log::Agent::File::* objects)
-#
-sub chanfd {
-	my $self = shift;
-	my ($channel) = @_;
-	my $fd = $self->channel_fds->{$channel};
-	$fd = $self->open_channel($channel) unless $fd;
-	return $fd;
+	return $_[0];
 }
 
 #
@@ -223,28 +162,6 @@ sub chanfn {
 }
 
 #
-# ->emit			-- defined
-#
-sub emit {
-	my $self = shift;
-	my ($channel, $priority, $logstring) = @_;
-	local $\ = undef;
-	my $fd = $self->chanfd($channel);
-	return unless $fd;
-
-	#
-	# The innocent-looking statement below is NOT a polymorphic call.
-	#
-	# It can be targetted on various Log::Agent::File::* objects, which
-	# all happen to provide a print() feature with the same signature.
-	# However, those clases have no inheritance relationship because Perl
-	# is not typed, and the ancestor would be a deferred class anyway.
-	#
-
-	$fd->print($logstring, "\n");
-}
-
-#
 # ->channel_eq		-- defined
 #
 # Compare two channels.
@@ -263,16 +180,43 @@ sub channel_eq {
 }
 
 #
+# ->write			-- defined
+#
+sub write {
+	my $self = shift;
+	my ($channel, $priority, $logstring) = @_;
+	my $chan = $self->channel($channel);
+	return unless $chan;
+
+	$chan->write($priority, $logstring);
+}
+
+#
+# ->channel
+#
+# Return channel object (one of the Log::Agent::Channel::* objects)
+#
+sub channel {
+	my $self = shift;
+	my ($name) = @_;
+	my $obj = $self->channel_obj->{$name};
+	$obj = $self->open_channel($name) unless $obj;
+	return $obj;
+}
+
+
+#
 # ->open_channel
 #
 # Open given channel according to the configured channel description and
-# return the opened file descriptor.
-# If no channel was defined, use 'error' or STDERR.
+# return the object file descriptor.
+#
+# If no channel of that name was defined, use 'error' or STDERR.
 #
 sub open_channel {
 	my $self = shift;
-	my ($channel) = @_;
-	my $filename = $self->channels->{$channel};
+	my ($name) = @_;
+	my $filename = $self->channels->{$name};
 
 	#
 	# Handle possible logfile rotation, which may be defined globally
@@ -286,6 +230,14 @@ sub open_channel {
 		$rotate = $self->rotate;
 	}
 
+	my @common_args = (
+		-prefix		=> $self->prefix,
+		-stampfmt	=> $self->stampfmt,
+		-showpid	=> $self->showpid,
+	);
+	my @other_args;
+	my $type;
+
 	#
 	# No channel defined, use 'error', or revert to STDERR
 	#
@@ -294,63 +246,23 @@ sub open_channel {
 		defined $filename && length $filename;
 
 	unless (defined $filename && length $filename) {
+		require Log::Agent::Channel::Handle;
 		select((select(main::STDERR), $| = 1)[0]);
-		return $self->channel_fds->{$channel} =
-			Log::Agent::File::Native->make(\*main::STDERR);
-	}
-
-	my $h = gensym;
-	my $fobj;
-
-	#
-	# They may use ">file" or "|proc" as channel files if -magic_open
-	#
-
-	if ($filename =~ /^\s*[>|]/ && $self->magic_open) {
-		if (open($h, $filename)) {
-			$fobj = Log::Agent::File::Native->make($h);
-		}
+		$type = "Log::Agent::Channel::Handle";
+		@other_args = (-handle => \*main::STDERR);
 	} else {
-		#
-		# If the file is already opened, do not re-open it: share the
-		# same Log::Agent::File::* object.
-		#
-
-		my $opath = $self->opath;
-		my $rpath = $self->rpath;
-		my $eobj = $opath->{$filename};
-		my $erot = $rpath->{$filename};
-
-		if (defined $eobj) {
-			$fobj = $eobj;			# Reuse same object
-			$fobj->print(
-				$self->prefix_msg("rotation for '$channel' may be wrong\n")
-			) if defined $erot && defined $rotate && $erot != $rotate;
-		} elsif (defined $rotate) {
-			$fobj = Log::Agent::File::Rotate->make($filename, $rotate, $self);
-			$rpath->{$filename} = $rotate;
-		} else {
-			if (sysopen($h, $filename, O_CREAT|O_APPEND|O_WRONLY)) {
-				$fobj = Log::Agent::File::Native->make($h);
-			}
-		}
-		$opath->{$filename} = $fobj;
+		require Log::Agent::Channel::File;
+		$type = "Log::Agent::Channel::File";
+		@other_args = (
+			-filename		=> $filename,
+			-magic_open		=> $self->magic_open,
+			-share			=> 1,
+		);
+		push(@other_args, -rotate => $rotate) if ref $rotate;
 	}
 
-	#
-	# If an error occurred, we have no choice but to emit a warning via warn().
-	# Otherwise, the error would disappear, and we know they don't want to
-	# silence us, or Log::Agent::Driver::Silent would have been requested.
-	# Warn only once per logfile though.
-	#
-
-	unless (defined $fobj) {
-		warn $self->prefix_msg("can't open logfile \"$filename\": $!\n")
-			unless $self->warned->{$filename}++;
-		return undef;
-	}
-
-	return $self->channel_fds->{$channel} = $fobj;
+	return $self->channel_obj->{$name} =
+		$type->make(@common_args, @other_args);
 }
 
 #
@@ -360,12 +272,10 @@ sub open_channel {
 #
 sub emit_output {
 	my $self = shift;
-	my ($priority, $tag, $str) = @_;
+	my ($prio, $tag, $str) = @_;
 	my $cstr = $str->clone;				# We're prepending tag on a copy
 	$cstr->prepend("$tag: ");
-	$self->emit('output',
-		$self->priority($priority),
-		$self->prefix_msg($cstr));
+	$self->write('output', $prio, $cstr);
 }
 
 ###
@@ -459,6 +369,19 @@ sub logxcarp {
 	);
 	$self->emit_output('warning', "WARNING", $msg) if $self->duperr;
 	$self->SUPER::logwarn($msg);
+}
+
+#
+# ->DESTROY
+#
+# Close all opened channels, so they may be removed from the common pool.
+#
+sub DESTROY {
+	my $self = shift;
+	my $channel_obj = $self->channel_obj;
+	foreach my $chan (values %$channel_obj) {
+		$chan->close;
+	}
 }
 
 1;	# for require
@@ -629,10 +552,9 @@ different rotation policy to such channels, the channel opening order will
 determine which of the policies will be used for all such shared channels.
 Such errors are flagged at runtime with the following message:
 
-    Rotation for 'error' may be wrong
+ Rotation for 'logfile' may be wrong (shared with distinct policies)
 
-emitted in the logs. Here, I<error> is the second channel opened, which will
-be using the policy of the channel with which it is shared..
+emitted in the logs upon subsequent sharing.
 
 =head1 AUTHOR
 

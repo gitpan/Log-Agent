@@ -1,5 +1,5 @@
 #
-# $Id: carp.pl,v 0.1.1.1 2000/10/01 20:00:29 ram Exp $
+# $Id: carp.pl,v 0.2 2000/11/06 19:30:33 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,8 +8,8 @@
 #
 # HISTORY
 # $Log: carp.pl,v $
-# Revision 0.1.1.1  2000/10/01 20:00:29  ram
-# patch8: created.
+# Revision 0.2  2000/11/06 19:30:33  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

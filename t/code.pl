@@ -1,5 +1,5 @@
 #
-# $Id: code.pl,v 0.1.1.2 2000/10/01 20:00:54 ram Exp $
+# $Id: code.pl,v 0.2 2000/11/06 19:30:33 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -8,14 +8,8 @@
 #
 # HISTORY
 # $Log: code.pl,v $
-# Revision 0.1.1.2  2000/10/01 20:00:54  ram
-# patch8: contains now returns line where match occurred
-#
-# Revision 0.1.1.1  2000/03/05 22:24:42  ram
-# patch3: added ok()
-#
-# Revision 0.1  1999/12/07 21:09:44  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:33  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #

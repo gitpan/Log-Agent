@@ -1,7 +1,7 @@
 #!./perl
 
 #
-# $Id: default.t,v 0.1.1.1 2000/03/05 22:24:55 ram Exp $
+# $Id: default.t,v 0.2 2000/11/06 19:30:34 ram Exp $
 #
 #  Copyright (c) 1999, Raphael Manfredi
 #  
@@ -10,11 +10,8 @@
 #
 # HISTORY
 # $Log: default.t,v $
-# Revision 0.1.1.1  2000/03/05 22:24:55  ram
-# patch3: rewrote to use the new ok() routine
-#
-# Revision 0.1  1999/12/07 21:09:45  ram
-# Baseline for first alpha release.
+# Revision 0.2  2000/11/06 19:30:34  ram
+# Baseline for second Alpha release.
 #
 # $EndLog$
 #
@@ -34,14 +31,15 @@ open(STDERR, ">t/default.err") || die "can't redirect STDERR: $!\n";
 
 logerr "error";
 logsay "message";
+logtrc 'debug', "debug";
 
 close STDOUT;
 close STDERR;
 
 ok 1, contains("t/default.err", '^Error$');
-ok 2, !contains("t/default.out", '^Error$');
-ok 3, contains("t/default.out", '^Message$');
-ok 4, !contains("t/default.err", '^Message$');
+ok 2, contains("t/default.err", '^Message$');
+ok 3, !contains("t/default.err", '^Debug$');
+ok 4, 0 == -s "t/default.out";
 
 unlink 't/default.out', 't/default.err';
 
