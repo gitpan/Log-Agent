@@ -1,3 +1,18 @@
+
+Sun Oct  2 12:57:35 EDT 2005   Mark Rogaski <mrogaski@cpan.org>
+
+. Description:	0.3.7
+
+        Replaced a non-localized modification $^W with "no warnings" so
+        warnings are no disabled globally.  Thanks to Andreas Vierengel for
+        pointing this out.
+
+        Fixed formatting behavior for strings that contain "%%" without any
+        other formating characters.  Thanks to David Coppit for this one.
+
+        Fixed a minor undef warning in a major kludge in the Agent::Driver
+        code.
+		
 Mon Feb  2 22:34:28 EST 2004   Mark Rogaski <mrogaski@cpan.org>
 
 . Description:  0.3.6

@@ -1,19 +1,23 @@
 ###########################################################################
-# $Id: Driver.pm,v 1.4 2003/03/08 16:40:27 wendigo Exp $
+# $Id: Driver.pm,v 1.5 2005/10/02 16:55:00 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent::Driver
 #
-# RCS Revision: $Revision: 1.4 $
-# Date: $Date: 2003/03/08 16:40:27 $
+# RCS Revision: $Revision: 1.5 $
+# Date: $Date: 2005/10/02 16:55:00 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+# Copyright (C) 2002, 2005 Mark Rogaski, mrogaski@cpan.org;
+# all rights reserved.
 #
 # See the README file included with the
 # distribution for license information.
 #
 # $Log: Driver.pm,v $
+# Revision 1.5  2005/10/02 16:55:00  wendigo
+# Fixed a minor undef warning in a major kludge.
+#
 # Revision 1.4  2003/03/08 16:40:27  wendigo
 # Merged format and multiline carp changes
 #
@@ -267,7 +271,8 @@ sub carpmess {
             $first =~ s/(at (.+) line \d+)$//;
             my $bad = $1;
             my @stack = split(/\n/, $msg);
-            my ($at) = $stack[$index] =~ /(at \S+ line \d+)$/;
+            my ($at) = $stack[$index] =~ /(at \S+ line \d+)$/ 
+                    if defined $stack[$index];
             $at = "$bad (Log::Agent could not fix it)" unless $at;
             $first .= $at;
             $str->set_str($first);

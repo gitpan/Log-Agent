@@ -1,19 +1,24 @@
 ###########################################################################
-# $Id: Formatting.pm,v 1.5 2003/09/27 18:11:16 wendigo Exp $
+# $Id: Formatting.pm,v 1.6 2005/10/02 16:47:36 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent::Formatting
 #
-# RCS Revision: $Revision: 1.5 $
-# Date: $Date: 2003/09/27 18:11:16 $
+# RCS Revision: $Revision: 1.6 $
+# Date: $Date: 2005/10/02 16:47:36 $
 #
 # Copyright (c) 1999 Raphael Manfredi
-# Copyright (c) 2002-2003 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+# Copyright (c) 2002-2003,2005 Mark Rogaski, mrogaski@cpan.org;
+# all rights reserved.
 #
 # See the README file included with the
 # distribution for license information.
 #
 # $Log: Formatting.pm,v $
+# Revision 1.6  2005/10/02 16:47:36  wendigo
+# Fixed formatting behavior for strings that contain "%%" without any other
+# formating characters.
+#
 # Revision 1.5  2003/09/27 18:11:16  wendigo
 # Modified comments.
 #
@@ -120,9 +125,9 @@ sub tag_format_args {
     # programs a bit easier by prechecking input to sprintf() 
     # for errors.  I usually prefer lazy error checking, but 
     # this seems to be an appropriate exception.
-    if (my $argcnt = grep !/\%\%/, $msg =~
-            /\%[^\%]*[csduoxefgXEGbpniDUOF]|\%\%/g) {
-        BEGIN { $^W = 0 }
+    if (my @arglist = $msg =~ /\%[^\%]*[csduoxefgXEGbpniDUOF]|\%\%/g) {
+        BEGIN { no warnings }
+        my $argcnt = grep !/\%\%/, @arglist;
         if (grep {! defined} @$ary[0..($argcnt - 1)]) {
             whine("Use of uninitialized value in sprintf");
         }

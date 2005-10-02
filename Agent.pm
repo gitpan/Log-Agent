@@ -1,14 +1,15 @@
 ###########################################################################
-# $Id: Agent.pm,v 1.9 2004/02/03 03:37:37 wendigo Exp $
+# $Id: Agent.pm,v 1.11 2005/10/02 16:57:17 wendigo Exp $
 ###########################################################################
 #
 # Log::Agent
 #
-# RCS Revision: $Revision: 1.9 $
-# Date: $Date: 2004/02/03 03:37:37 $
+# RCS Revision: $Revision: 1.11 $
+# Date: $Date: 2005/10/02 16:57:17 $
 #
 # Copyright (C) 1999 Raphael Manfredi.
-# Copyright (C) 2002-2003 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+# Copyright (C) 2002-2003,2005 Mark Rogaski, mrogaski@cpan.org;
+# all rights reserved.
 #
 # See the README file included with the
 # distribution for license information.
@@ -40,7 +41,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 use Log::Agent::Priorities qw(:LEVELS priority_level level_from_prio);
 use Log::Agent::Formatting qw(tag_format_args);
 
-$VERSION = '0.306';
+$VERSION = '0.307';
 
 $Trace = NOTICE;	# Default tracing
 $OS_Error = '';         # Data stash for the $! value
