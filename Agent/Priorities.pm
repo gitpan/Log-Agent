@@ -1,30 +1,15 @@
+###########################################################################
 #
-# $Id: Priorities.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
+#   Priorities.pm
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# HISTORY
-# $Log: Priorities.pm,v $
-# Revision 1.1  2002/03/09 16:01:37  wendigo
-# New maintainer
+#   See the README file included with the
+#   distribution for license information.
 #
-# Revision 0.2.1.3  2001/04/11 15:51:55  ram
-# patch8: routines are now auto-loaded
-#
-# Revision 0.2.1.2  2001/03/31 10:02:04  ram
-# patch7: fixed off-by-one error in prio_from_level()
-#
-# Revision 0.2.1.1  2000/11/12 14:46:52  ram
-# patch1: fixed indentation
-#
-# Revision 0.2  2000/11/06 19:30:33  ram
-# Baseline for second Alpha release.
-#
-# $EndLog$
-#
+##########################################################################
 
 use strict;
 

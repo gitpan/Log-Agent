@@ -1,38 +1,16 @@
-#!./perl
-###########################################################################
-# $Id: format.t,v 1.4 2005/10/02 16:47:29 wendigo Exp $
+#!perl
 ###########################################################################
 #
-# format.t
+#   format.t
 #
-# RCS Revision: $Revision: 1.4 $
-# Date: $Date: 2005/10/02 16:47:29 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included with the
-# distribution for license information.
-#
-# $Log: format.t,v $
-# Revision 1.4  2005/10/02 16:47:29  wendigo
-# Fixed formatting behavior for strings that contain "%%" without any other
-# formating characters.
-#
-# Revision 1.3  2003/09/27 15:27:00  wendigo
-# Saved $! before testing %m since perl-5.8.1 seems to modify $! during
-# a call to logerr().
-#
-# Revision 1.2  2003/09/27 15:19:24  wendigo
-# Tests for sprintf-like formatting.
-#
-# Revision 1.1.2.2  2003/03/08 16:18:01  wendigo
-# *** empty log message ***
-#
-# Revision 1.1.2.1  2002/12/13 04:24:46  wendigo
-# Code to test logxxx formatting.
-#
-#
-###########################################################################
+##########################################################################
 
 use Test;
 use Log::Agent;

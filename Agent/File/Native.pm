@@ -1,27 +1,15 @@
+###########################################################################
 #
-# $Id: Native.pm,v 1.1 2002/03/09 16:08:16 wendigo Exp $
+#   Native.pm
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
-#  
-# HISTORY
-# $Log: Native.pm,v $
-# Revision 1.1  2002/03/09 16:08:16  wendigo
-# New maintainer
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Revision 0.2.1.2  2001/03/31 10:01:17  ram
-# patch7: fixed =over to add explicit indent level
+#   See the README file included with the
+#   distribution for license information.
 #
-# Revision 0.2.1.1  2000/11/12 14:46:40  ram
-# patch1: reset $\ before printing
-#
-# Revision 0.2  2000/11/06 19:30:33  ram
-# Baseline for second Alpha release.
-#
-# $EndLog$
-#
+##########################################################################
 
 use strict;
 

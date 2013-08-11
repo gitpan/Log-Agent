@@ -1,32 +1,15 @@
 ###########################################################################
-# $Id: File.pm,v 1.1 2002/03/09 16:05:44 wendigo Exp $
-###########################################################################
 #
-# Log::Agent::
+#   File.pm
 #
-# RCS Revision: $Revision: 1.1 $
-# Date: $Date: 2002/03/09 16:05:44 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-###########################################################################
+#   See the README file included with the
+#   distribution for license information.
 #
-# Copyright (C) 1999 Raphael Manfredi.
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
-#
-# See the README file in the distribution for license information.
-#
-###########################################################################
-#
-# $Log: File.pm,v $
-# Revision 1.1  2002/03/09 16:05:44  wendigo
-# Added file permission arguments
-#
-# Revision 0.2.1.1  2001/03/31 10:00:14  ram
-# patch7: fixed =over to add explicit indent level
-#
-# Revision 0.2  2000/11/06 19:30:32  ram
-# Baseline for second Alpha release.
-#
-###########################################################################
+##########################################################################
 
 use strict;
 require Log::Agent::Channel;

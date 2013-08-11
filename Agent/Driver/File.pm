@@ -1,32 +1,15 @@
 ###########################################################################
-# $Id: File.pm,v 1.1 2002/03/09 15:58:47 wendigo Exp $
-###########################################################################
 #
-# Log::Agent::
+#   File.pm
 #
-# RCS Revision: $Revision: 1.1 $
-# Date: $Date: 2002/03/09 15:58:47 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 1999 Raphael Manfredi.
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included in the distribution for license information.
-#
-# $Log: File.pm,v $
-# Revision 1.1  2002/03/09 15:58:47  wendigo
-# Added file permission arguments
-#
-# Revision 0.2.1.2  2001/03/31 10:01:07  ram
-# patch7: fixed =over to add explicit indent level
-# patch7: massive renaming Devel::Datum -> Carp::Datum
-#
-# Revision 0.2.1.1  2000/11/12 14:46:27  ram
-# patch1: test for definedness in destructor
-#
-# Revision 0.2  2000/11/06 19:30:33  ram
-# Baseline for second Alpha release.
-#
-###########################################################################
+##########################################################################
 
 use strict;
 require Log::Agent::Driver;

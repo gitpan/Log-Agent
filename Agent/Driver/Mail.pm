@@ -1,27 +1,15 @@
 ###########################################################################
-# $Id: Mail.pm,v 1.2 2002/05/12 09:04:09 wendigo Exp $
-###########################################################################
 #
-# Log::Agent::Driver::Mail
+#   Mail.pm
 #
-# RCS Revision: $Revision: 1.2 $
-# Date: $Date: 2002/05/12 09:04:09 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included with the
-# distribution for license information.
-#
-# $Log: Mail.pm,v $
-# Revision 1.2  2002/05/12 09:04:09  wendigo
-# added optional arguments to Mail::Mailer->new()
-# changed format of make() arguments
-#
-# Revision 1.1  2002/04/25 05:38:47  wendigo
-# Initial revision
-#
-#
-###########################################################################
+##########################################################################
 
 package Log::Agent::Driver::Mail;
 

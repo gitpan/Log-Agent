@@ -1,32 +1,15 @@
 ###########################################################################
-# $Id: Caller.pm,v 1.1 2002/03/09 16:09:45 wendigo Exp $
-###########################################################################
 #
-# Log::Agent::Tag::Caller
+#   Caller.pm
 #
-# RCS Revision: $Revision: 1.1 $
-# Date: $Date: 2002/03/09 16:09:45 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 1999 Raphael Manfredi
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included with the
-# distribution for license information.
-#
-# $Log: Caller.pm,v $
-# Revision 1.1  2002/03/09 16:09:45  wendigo
-# Corrected  initialization
-#
-# Revision 0.2.1.2  2001/03/31 10:02:22  ram
-# patch7: fixed =over to add explicit indent level
-#
-# Revision 0.2.1.1  2001/03/13 18:45:18  ram
-# patch2: created
-#
-# Revision 0.2  2000/11/06 19:30:32  ram
-# Baseline for second Alpha release.
-#
-###########################################################################
+##########################################################################
 
 use strict;
 

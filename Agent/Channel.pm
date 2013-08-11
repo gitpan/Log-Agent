@@ -1,27 +1,15 @@
+###########################################################################
 #
-# $Id: Channel.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
+#   Channel.pm
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# HISTORY
-# $Log: Channel.pm,v $
-# Revision 1.1  2002/03/09 16:01:37  wendigo
-# New maintainer
+#   See the README file included with the
+#   distribution for license information.
 #
-# Revision 0.2.1.2  2001/04/11 15:51:10  ram
-# patch8: added hyperlinks within POD to ease web browsing of manpage
-#
-# Revision 0.2.1.1  2001/03/31 10:00:11  ram
-# patch7: fixed =over to add explicit indent level
-#
-# Revision 0.2  2000/11/06 19:30:32  ram
-# Baseline for second Alpha release.
-#
-# $EndLog$
-#
+##########################################################################
 
 use strict;
 

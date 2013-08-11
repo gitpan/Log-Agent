@@ -1,24 +1,16 @@
 #!perl
 ###########################################################################
-# $Id: fork.t,v 1.1 2002/02/23 06:25:20 wendigo Exp $
-###########################################################################
 #
-# fork.t
+#   fork.t
 #
-# RCS Revision: $Revision: 1.1 $
-# Date: $Date: 2002/02/23 06:25:20 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included with the
-# distribution for license information.
-#
-# $Log: fork.t,v $
-# Revision 1.1  2002/02/23 06:25:20  wendigo
-# Initial revision
-#
-#
-###########################################################################
+##########################################################################
 
 use strict;
 use Test;

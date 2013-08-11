@@ -1,37 +1,18 @@
-#!./perl
-###########################################################################
-# $Id: file.t,v 0.4 2004/02/03 03:37:02 wendigo Exp $
+#!perl
 ###########################################################################
 #
-# file.t
+#   file.t
 #
-# RCS Revision: $Revision: 0.4 $
-# Date: $Date: 2004/02/03 03:37:02 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 1999 Raphael Manfredi
-# Copyright (C) 2002 Mark Rogaski, mrogaski@cpan.org; all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included with the
-# distribution for license information.
-#
-# $Log: file.t,v $
-# Revision 0.4  2004/02/03 03:37:02  wendigo
-# Replaced unnecessary file alias with actual file name.
-#
-# Revision 0.3  2002/02/23 06:28:56  wendigo
-# Maintainer change
-# - improved output redirection
-# - switched to ok() from Test.pm
-#
-# Revision 0.2.1.1  2001/03/13 18:46:06  ram
-# patch2: fixed bug for *BSD systems
-#
-# Revision 0.2  2000/11/06 19:30:34  ram
-# Baseline for second Alpha release.
-#
-###########################################################################
+##########################################################################
 
-use Test;
+use Test::More;
 use Log::Agent;
 require Log::Agent::Driver::File;
 require 't/common.pl';
@@ -113,8 +94,8 @@ $driver = Log::Agent::Driver::File->make(
     -prefix => 'me',
     -stampfmt => sub { 'DATE' },
     -channels => {
-        'error' => 't/file.err',
-        'output' => 't/file.out'
+        'error' => 't/file2.err',
+        'output' => 't/file2.out'
     },
 );
 logconfig(-driver => $driver);
@@ -126,16 +107,16 @@ eval { logdie "die" };
 
 ok($@);
 
-ok(contains("t/file.err", '^DATE me: error$'));
-ok(! contains("t/file.out", 'error'));
-ok(contains("t/file.out", '^DATE me: message$'));
-ok(! contains("t/file.err", 'message'));
-ok(contains("t/file.err", '^DATE me: warning$'));
-ok(! contains("t/file.out", 'warning'));
-ok(contains("t/file.err", '^DATE me: die$'));
-ok(! contains("t/file.out", 'die'));
+ok(contains("t/file2.err", '^DATE me: error$'));
+ok(! contains("t/file2.out", 'error'));
+ok(contains("t/file2.out", '^DATE me: message$'));
+ok(! contains("t/file2.err", 'message'));
+ok(contains("t/file2.err", '^DATE me: warning$'));
+ok(! contains("t/file2.out", 'warning'));
+ok(contains("t/file2.err", '^DATE me: die$'));
+ok(! contains("t/file2.out", 'die'));
 
-unlink 't/file.out', 't/file.err';
+unlink 't/file2.out', 't/file2.err';
 
 undef $Log::Agent::Driver;  # Cheat
 open(FILE, '>>t/file.err'); # Needs appending, for OpenBSD
@@ -144,7 +125,7 @@ $driver = Log::Agent::Driver::File->make(
     -prefix => 'me',
     -magic_open => 1,
     -channels => {
-        'error' => '>>t/file.err',
+        'error' => '>>t/file3.err',
     },
 );
 logconfig(-driver => $driver);
@@ -155,141 +136,146 @@ logsay "should go to error";
 close FILE;
 
 ok(! -e '>&main::FILE');
-ok(-e 't/file.err');
-ok(contains("t/file.err", 'me: error$'));
-ok(contains("t/file.err", 'me: should go to'));
+ok(-e 't/file3.err');
+ok(contains("t/file3.err", 'me: error$'));
+ok(contains("t/file3.err", 'me: should go to'));
 
-unlink 't/file.err';
+unlink 't/file3.err';
 
 #
 # Test file permissions
 #
 
-$driver = Log::Agent::Driver::File->make(
-    -file => 'file.out',
-    -perm => 0666
-);
-logconfig(-driver => $driver);
-logsay "HONK HONK!";
+SKIP: {
 
-ok(perm_ok('file.out', 0666));
+    skip "file mode not supported on Win32.", 12 if $^O eq 'MSWin32';
 
-unlink 'file.out';
+    $driver = Log::Agent::Driver::File->make(
+        -file => 't/file4.out',
+        -perm => 0666
+    );
+    logconfig(-driver => $driver);
+    logsay "HONK HONK!";
 
-$driver = Log::Agent::Driver::File->make(
-    -file => 'file.out',
-    -perm => 0644
-);
-logconfig(-driver => $driver);
-logsay "HONK HONK!";
+    ok(perm_ok('t/file4.out', 0666));
 
-ok(perm_ok('file.out', 0644));
+    unlink 't/file4.out';
 
-unlink 'file.out';
+    $driver = Log::Agent::Driver::File->make(
+        -file => 't/file5.out',
+        -perm => 0644
+    );
+    logconfig(-driver => $driver);
+    logsay "HONK HONK!";
 
-$driver = Log::Agent::Driver::File->make(
-    -file => 'file.out',
-    -perm => 0640
-);
-logconfig(-driver => $driver);
-logsay "HONK HONK!";
+    ok(perm_ok('t/file5.out', 0644));
 
-ok(perm_ok('file.out', 0640));
+    unlink 't/file5.out';
 
-#
-# and with magic_open
-#
+    $driver = Log::Agent::Driver::File->make(
+        -file => 't/file6.out',
+        -perm => 0640
+    );
+    logconfig(-driver => $driver);
+    logsay "HONK HONK!";
 
-unlink 'file.out';
-$driver = Log::Agent::Driver::File->make(
-    -file       => 'file.out',
-    -perm       => 0666,
-    -magic_open => 1
-);
-logconfig(-driver => $driver);
-logsay "HONK HONK!";
+    ok(perm_ok('t/file6.out', 0640));
 
-ok(perm_ok('file.out', 0666));
+    unlink 't/file6.out';
 
-unlink 'file.out';
+    #
+    # and with magic_open
+    #
 
-$driver = Log::Agent::Driver::File->make(
-    -file       => 'file.out',
-    -perm       => 0644,
-    -magic_open => 1
-);
-logconfig(-driver => $driver);
-logsay "HONK HONK!";
+    $driver = Log::Agent::Driver::File->make(
+        -file       => 't/file7.out',
+        -perm       => 0666,
+        -magic_open => 1
+    );
+    logconfig(-driver => $driver);
+    logsay "HONK HONK!";
 
-ok(perm_ok('file.out', 0644));
+    ok(perm_ok('t/file7.out', 0666));
 
-unlink 'file.out';
+    unlink 't/file7.out';
 
-$driver = Log::Agent::Driver::File->make(
-    -file       => 'file.out',
-    -perm       => 0640,
-    -magic_open => 1
-);
-logconfig(-driver => $driver);
-logsay "HONK HONK!";
+    $driver = Log::Agent::Driver::File->make(
+        -file       => 't/file8.out',
+        -perm       => 0644,
+        -magic_open => 1
+    );
+    logconfig(-driver => $driver);
+    logsay "HONK HONK!";
 
-ok(perm_ok('file.out', 0640));
+    ok(perm_ok('t/file8.out', 0644));
 
-unlink 'file.out';
+    unlink 't/file8.out';
 
-#
-# Test file permissions with multiple channels
-#
+    $driver = Log::Agent::Driver::File->make(
+        -file       => 't/file9.out',
+        -perm       => 0640,
+        -magic_open => 1
+    );
+    logconfig(-driver => $driver);
+    logsay "HONK HONK!";
 
-$driver = Log::Agent::Driver::File->make(
-    -channels => {
-        output => 'file.out',
-        error  => 'file.err',
-        debug  => 'file.dbg'
-    },
-    -chanperm => {
-        output => 0666,
-        error  => 0644,
-        debug  => 0640
-    }
-);
-logconfig(-driver => $driver, -debug => 10);
-logsay "HONK HONK!";
-logerr "HONK HONK!";
-logdbg 'debug', "HONK HONK!";
+    ok(perm_ok('t/file9.out', 0640));
 
-ok(perm_ok('file.out', 0666));
-ok(perm_ok('file.err', 0644));
-ok(perm_ok('file.dbg', 0640));
+    unlink 't/file9.out';
 
-unlink 'file.out', 'file.err', 'file.dbg';
+    #
+    # Test file permissions with multiple channels
+    #
 
-#
-# and, again, with magic_open
-#
+    $driver = Log::Agent::Driver::File->make(
+        -channels => {
+            output => 't/file10.out',
+            error  => 't/file10.err',
+            debug  => 't/file10.dbg'
+        },
+        -chanperm => {
+            output => 0666,
+            error  => 0644,
+            debug  => 0640
+        }
+    );
+    logconfig(-driver => $driver, -debug => 10);
+    logsay "HONK HONK!";
+    logerr "HONK HONK!";
+    logdbg 'debug', "HONK HONK!";
 
-$driver = Log::Agent::Driver::File->make(
-    -channels => {
-        output => 'file.out',
-        error  => 'file.err',
-        debug  => 'file.dbg'
-    },
-    -chanperm => {
-        output => 0666,
-        error  => 0644,
-        debug  => 0640
-    },
-    -magic_open => 1
-);
-logconfig(-driver => $driver, -debug => 10);
-logsay "HONK HONK!";
-logerr "HONK HONK!";
-logdbg 'debug', "HONK HONK!";
+    ok(perm_ok('t/file10.out', 0666));
+    ok(perm_ok('t/file10.err', 0644));
+    ok(perm_ok('t/file10.dbg', 0640));
 
-ok(perm_ok('file.out', 0666));
-ok(perm_ok('file.err', 0644));
-ok(perm_ok('file.dbg', 0640));
+    unlink 't/file10.out', 't/file10.err', 't/file10.dbg';
 
-unlink 'file.out', 'file.err', 'file.dbg';
+    #
+    # and, again, with magic_open
+    #
 
+    $driver = Log::Agent::Driver::File->make(
+        -channels => {
+            output => 't/file11.out',
+            error  => 't/file11.err',
+            debug  => 't/file11.dbg'
+        },
+        -chanperm => {
+            output => 0666,
+            error  => 0644,
+            debug  => 0640
+        },
+        -magic_open => 1
+    );
+    logconfig(-driver => $driver, -debug => 10);
+    logsay "HONK HONK!";
+    logerr "HONK HONK!";
+    logdbg 'debug', "HONK HONK!";
 
+    ok(perm_ok('t/file11.out', 0666));
+    ok(perm_ok('t/file11.err', 0644));
+    ok(perm_ok('t/file11.dbg', 0640));
+
+    unlink 't/file11.out', 't/file11.err', 't/file11.dbg';
+
+}

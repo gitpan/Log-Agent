@@ -1,25 +1,16 @@
+#!perl
+###########################################################################
 #
-# $Id: code.pl,v 1.2 2004/02/02 04:11:27 wendigo Exp $
+#   code.pl
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# HISTORY
-# $Log: code.pl,v $
-# Revision 1.2  2004/02/02 04:11:27  wendigo
-# Stripped line endings from common tests to allow success on non-UN*X
-# platforms.
+#   See the README file included with the
+#   distribution for license information.
 #
-# Revision 1.1  2002/03/09 16:16:55  wendigo
-# New maintainer
-#
-# Revision 0.2  2000/11/06 19:30:33  ram
-# Baseline for second Alpha release.
-#
-# $EndLog$
-#
+##########################################################################
 
 sub ok {
 	my ($num, $ok) = @_;

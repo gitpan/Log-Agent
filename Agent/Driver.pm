@@ -1,50 +1,16 @@
 ###########################################################################
-# $Id: Driver.pm,v 1.5 2005/10/02 16:55:00 wendigo Exp $
-###########################################################################
 #
-# Log::Agent::Driver
+#   Driver.pm
 #
-# RCS Revision: $Revision: 1.5 $
-# Date: $Date: 2005/10/02 16:55:00 $
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Copyright (C) 1999 Raphael Manfredi.
-# Copyright (C) 2002, 2005 Mark Rogaski, mrogaski@cpan.org;
-# all rights reserved.
+#   See the README file included with the
+#   distribution for license information.
 #
-# See the README file included with the
-# distribution for license information.
-#
-# $Log: Driver.pm,v $
-# Revision 1.5  2005/10/02 16:55:00  wendigo
-# Fixed a minor undef warning in a major kludge.
-#
-# Revision 1.4  2003/03/08 16:40:27  wendigo
-# Merged format and multiline carp changes
-#
-# Revision 1.3.2.1  2003/03/08 16:17:31  wendigo
-# Added support for multiline carp messages.
-#
-# Revision 1.3  2002/08/02 03:40:50  wendigo
-# expanded &Carp::shortmess workaround to include 5.8.0 behavior
-#
-# Revision 1.2  2002/05/10 05:02:56  wendigo
-# added a mention of Log::Agent::Driver::Fork
-#
-# Revision 1.1  2002/03/09 16:01:37  wendigo
-# New maintainer
-#
-# Revision 0.2.1.2  2001/03/31 10:00:30  ram
-# patch7: fixed =over to add explicit indent level
-# patch7: massive renaming Devel::Datum -> Carp::Datum
-#
-# Revision 0.2.1.1  2000/11/12 14:45:13  ram
-# patch1: undef of $\ is now taken care of by channel classes
-#
-# Revision 0.2  2000/11/06 19:30:32  ram
-# Baseline for second Alpha release.
-#
-#
-###########################################################################
+##########################################################################
+
 use strict;
 
 ########################################################################
@@ -240,6 +206,7 @@ sub carpmess {
     #
 
     chomp($msg);                    # Remove final "\n" added
+
     if ($msg =~ s/^(.*?)\n//) {
         my $first = $1;
 
@@ -286,6 +253,10 @@ sub carpmess {
     }
 
     $msg = $str->str;
+
+    # Another Carp workaround kludge.
+    $msg =~ s/ at .*\d\.at / at /;
+
     $msg =~ s/__MESSAGE__/$original/;
     $str->set_str($msg);
 

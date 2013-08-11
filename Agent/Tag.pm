@@ -1,24 +1,15 @@
+###########################################################################
 #
-# $Id: Tag.pm,v 1.1 2002/03/09 16:01:37 wendigo Exp $
+#   Tag.pm
 #
-#  Copyright (c) 1999, Raphael Manfredi
-#  
-#  You may redistribute only under the terms of the Artistic License,
-#  as specified in the README file that comes with the distribution.
-#  
-# HISTORY
-# $Log: Tag.pm,v $
-# Revision 1.1  2002/03/09 16:01:37  wendigo
-# New maintainer
+#   Copyright (C) 1999 Raphael Manfredi.
+#   Copyright (C) 2002-2003, 2005, 2013 Mark Rogaski, mrogaski@cpan.org;
+#   all rights reserved.
 #
-# Revision 0.2.1.2  2001/03/31 10:02:18  ram
-# patch7: fixed =over to add explicit indent level
+#   See the README file included with the
+#   distribution for license information.
 #
-# Revision 0.2.1.1  2001/03/13 18:45:12  ram
-# patch2: created
-#
-# $EndLog$
-#
+##########################################################################
 
 use strict;
 
