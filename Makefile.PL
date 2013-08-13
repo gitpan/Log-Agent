@@ -21,7 +21,7 @@ WriteMakefile(
         'Test::More' => 0,
     },
     clean => {
-        FILES => '*.err *.out t/*.err t/*.out',
+        FILES => '*~ *.err *.out Agent/*~ t*~ t/*.err t/*.out',
     },
     ($] < 5.008_001 ? () : ( NO_META => 1 ))
 );
